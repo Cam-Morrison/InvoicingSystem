@@ -9,6 +9,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
@@ -64,7 +65,7 @@ public class dashboard extends JFrame {
 		    table = new JTable();
 		    table.setFont(new Font("Arial", Font.PLAIN, 12));
 		    table.setColumnSelectionAllowed(true);
-		    table.setModel(data.generateTable(0));
+		    table.setModel(data.generateTable(""));
 		    table.setFillsViewportHeight(true);
 		    scrollPane.setViewportView(table);
 		    mainFrame.getIgnoreRepaint();
@@ -80,7 +81,12 @@ public class dashboard extends JFrame {
 			displayBtn.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent  e) {
-					table.setModel(data.generateTable(1));
+					Object options[] = { "Transactions", "Customers", "Suppliers", "Products", "Staff", "Shipping"};
+			        Object selectionObject = JOptionPane.showInputDialog(mainFrame, "Choose", "Menu", JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+			        if(!(selectionObject == null)) {
+				        String selectionString = selectionObject.toString();
+						table.setModel(data.generateTable(selectionString));
+			        }
 				}
 			});
 			displayBtn.setBackground(Color.WHITE);
