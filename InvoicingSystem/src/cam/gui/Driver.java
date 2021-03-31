@@ -18,6 +18,7 @@ import java.awt.Font;
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 import java.awt.Toolkit;
+import javax.swing.JPasswordField;
 
 public class Driver {
 	private DataManager data;
@@ -61,9 +62,9 @@ public class Driver {
 		passwordLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 		passwordLabel.setBounds(10, 40, 80, 25);
 		panel.add(passwordLabel);
-
-		JTextField passwordText = new JTextField(20);
-		passwordText.setBounds(100, 40, 160, 25);
+		
+		JPasswordField passwordText = new JPasswordField();
+		passwordText.setBounds(100, 42, 160, 25);
 		panel.add(passwordText);
 
 		JButton loginButton = new JButton("Login");
@@ -74,15 +75,18 @@ public class Driver {
 		loginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		loginButton.setFont(new Font("Arial", Font.PLAIN, 16));
 		loginButton.setBounds(100, 80, 160, 25);
+		
 		try {
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
 			e1.printStackTrace();
 		} 
+		
 		javax.swing.SwingUtilities.updateComponentTreeUI(loginButton);
 		panel.add(loginButton);
 		loginButton.addActionListener((ActionListener) new ActionListener() {
 			
+			@SuppressWarnings("deprecation")
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -92,6 +96,7 @@ public class Driver {
 					}else {
 						frame.dispose();
 						dashboard dashboard = new dashboard();
+						dashboard.createDashboard();
 					}
 				}catch(Exception error) {
 					JOptionPane.showMessageDialog(null, "Incorrect login");
@@ -108,9 +113,6 @@ public class Driver {
 		frame.getRootPane().setDefaultButton(loginButton);
 	}
 	
-	private void displayInformation(int option) {
-		
-	}
 	
 	private void createInvoice() {
 		
@@ -133,5 +135,4 @@ public class Driver {
 			return false;
 		} 
 	}
-
 }
