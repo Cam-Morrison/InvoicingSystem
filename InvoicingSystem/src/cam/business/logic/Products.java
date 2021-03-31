@@ -6,15 +6,13 @@ class Products {
 	private double price;
 	private int stockQuantity;
 	private int supplierId;
-	private String description;
 	
-	Products(int productId, String name, double price, int stockQuantity, int supplierId, String description){
+	Products(int productId, String name, double price, int stockQuantity, int supplierId){
 		this.productId = productId;
 		this.name = name;
 		this.price = price;
 		this.stockQuantity = stockQuantity;
 		this.supplierId = supplierId;
-		this.description = description;
 	}
 
 	/**
@@ -53,13 +51,6 @@ class Products {
 	}
 
 	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
-
-	/**
 	 * @param price the price to set
 	 */
 	public void setPrice(double price) {
@@ -73,12 +64,4 @@ class Products {
 		this.stockQuantity = stockQuantity;
 	}
 
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
-	
 }

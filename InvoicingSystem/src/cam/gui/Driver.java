@@ -17,6 +17,7 @@ import cam.business.logic.DataManager;
 import java.awt.Font;
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
+import java.awt.Toolkit;
 
 public class Driver {
 	private DataManager data;
@@ -41,6 +42,7 @@ public class Driver {
 	private void login() {
 		
 		JFrame frame = new JFrame();
+		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Driver.class.getResource("/cam/gui/icon.png")));
 		frame.setBackground(Color.WHITE);
 		JPanel panel = new JPanel();
 		panel.setLayout(null);

@@ -206,7 +206,7 @@ public class DataManager {
 				    
 					sql = "SELECT * FROM `order`, `shipping` WHERE order_id = order_order_id";
 				    rs = myStmt.executeQuery(sql);
-				    while (rs.next()) {	 //need to find a way to import invoice_item as arraylist for order id
+				    while (rs.next()) {
 			    	
 				        ArrayList<InvoiceItem> list = new ArrayList<InvoiceItem>();
 				        sql = "SELECT * FROM `invoice_item` WHERE order_order_id = " + rs.getInt("order_id");    
@@ -224,22 +224,27 @@ public class DataManager {
 				    	System.out.println(orderList.get(0).getOrderId());
 				    	System.out.println(orderList.get(0).getItems().get(0).getItemDescription());
 				    }
-				    break;
-				    				
-				case 300: //Used for testing, check what columns are in a table
-					
-				    sql = "SELECT * FROM `invoice_item`";
+				    
+				    sql = "SELECT * FROM `product`";
 				    rs = myStmt.executeQuery(sql);
-			       ResultSetMetaData rsMetaData = rs.getMetaData();
-			       System.out.println("List of column names in the current table: ");
-			       int count = rsMetaData.getColumnCount();
-			       for(int i = 1; i<=count; i++) {
-			          System.out.println(rsMetaData.getColumnName(i));
-			        }
-				   break;
+				    while (rs.next()) {
+				    		Products p = new Products(rs.getInt("product_id"), rs.getString("name"), 
+				    				rs.getDouble("price"), rs.getInt("quantity"), rs.getInt("supplier_supplier_id"));
+				    		productList.add(p);
+				    }
+				    
+				    sql = "SELECT * FROM `supplier`";
+				    rs = myStmt.executeQuery(sql);
+				    while (rs.next()) {
+				    	Suppliers s = new Suppliers(rs.getInt("supplier_id"), rs.getString("name"), rs.getString("phone"), rs.getString("email"));
+				    	supplierList.add(s);
+				    }
+				    break;
 			}
+			
 		    myConn.close();
 		    return true;
+		    
 		}catch(CommunicationsException e) { //Connection to DB port unavailable
 			JOptionPane.showMessageDialog(null, "Error connecting to database. Please free up port 3306. \nYou will now be redirected to a guide by medium.com.", "Communications link failure", JOptionPane.ERROR_MESSAGE);
 		    try {
@@ -276,7 +281,7 @@ public class DataManager {
 	}
 
 	//Method to generate and return populated table
-	public DefaultTableModel generateTable(int option) {
+	public DefaultTableModel generateTable(String option) {
 		DefaultTableModel tableModel;
 		switch(option) {
 			default: //Default Orders table
@@ -287,7 +292,7 @@ public class DataManager {
 							t.getCustomerId(), t.getStaffId(), t.getShippingId(), t.getTotalCost()});
 				} 
 				break;
-			case 1: //Clients users table
+			case "Customers": //Clients users table
 				Object clientsColumns[] = {"ID", "Name", "Email", "Address", "City", "Zip code", "Country"};
 				tableModel = new DefaultTableModel(clientsColumns, 0);
 				for(Clients c : clientList) {
@@ -295,15 +300,15 @@ public class DataManager {
 					c.getEmail(), c.getStreetAddress(), c.getCity(), c.getZipCode(), c.getCountry()});
 				}
 				break;
-			case 2: //Product table
-				Object productColumns[] = { "ID", "Name", "Price", "Quantity", "Supplier", "Description"};
+			case "Products": //Product table
+				Object productColumns[] = { "ID", "Name", "Price", "Quantity", "Supplier"};
 				tableModel = new DefaultTableModel(productColumns, 0);
 				for(Products p : productList) {
 					tableModel.addRow(new Object[] { p.getProductId(), p.getName(), p.getPrice(), 
-							p.getStockQuantity(), p.getSupplierId(), p.getDescription()});
+							p.getStockQuantity(), p.getSupplierId()});
 				}
 				break;
-			case 3: //Staff table
+			case "Staff": //Staff table
 				Object staffColumns[] = {"ID", "Name", "Phone number", "Job", "Hash"};
 				tableModel = new DefaultTableModel(staffColumns, 0);
 				for(Staff s : staffList) {
@@ -311,11 +316,18 @@ public class DataManager {
 							s.getJob(), s.getPasswordHash()});
 				}
 				break;
-			case 4: //Shipping table
+			case "Shipping": //Shipping table
 				Object shippingColumns[] = {"ID", "Shipping Method", "Estimated date", "Order ID"};
 				tableModel = new DefaultTableModel(shippingColumns, 0);
 				for(Transactions t : orderList) {
 					tableModel.addRow(new Object[] { t.getShippingId(), t.getShippingMethod(), t.getEstimatedDate(), t.getOrderId()});
+				}
+				break;
+			case "Suppliers": //Supplier table
+				Object supplierColumns[] = {"ID", "Company name", "Phone number", "Email"};
+				tableModel = new DefaultTableModel(supplierColumns, 0);
+				for(Suppliers s : supplierList) {
+					tableModel.addRow(new Object[] { s.getSupplierID(), s.getCompanyName(), s.getPhoneNumber(), s.getEmail()});
 				}
 				break;
 				
