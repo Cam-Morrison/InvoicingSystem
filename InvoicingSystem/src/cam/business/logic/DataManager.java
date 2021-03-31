@@ -7,17 +7,12 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
 import java.util.regex.Pattern;
-
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-
 import com.mysql.cj.jdbc.exceptions.CommunicationsException;
 
 
@@ -132,16 +127,16 @@ public class DataManager {
 	
 	//Stores newly entered information to database
 	private boolean storeDatabase() {
-		String driver = "com.mysql.cj.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
-		String user = "root";
-		String password = "root";
+//		String driver = "com.mysql.cj.jdbc.Driver";
+//		String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
+//		String user = "root";
+//		String password = "root";
 
-		try {
-			//Creating connection
-			Connection myConn = DriverManager.getConnection(url, user, password);
-			Statement myStmt = myConn.createStatement();
-			String sql = null;
+	//	try {
+	//		//Creating connection
+	//		Connection myConn = DriverManager.getConnection(url, user, password);
+	//		Statement myStmt = myConn.createStatement();
+	//		String sql = null;
 	//		sql = "INSERT INTO `supplier` " + "VALUES (1, 'Samsung', '+44 3232 3132', 'help@samsung.com')";
 	//	    myStmt.executeUpdate(sql);			    
 	//		sql = "INSERT INTO `product` " + "VALUES (1, 'Samsung s20', 3, 1600.00, 1)";
@@ -158,9 +153,9 @@ public class DataManager {
 	//	    myStmt.executeUpdate(sql);
 	//		sql = "INSERT INTO `invoice_item` " + "VALUES (1, 'Flagship smartphone 12gb ram', 12.00, 1, 1)";
 	//	    myStmt.executeUpdate(sql);			
-			myConn.close();
+	//		myConn.close();
 			
-		}catch(SQLException e) {}	
+	//	}catch(SQLException e) {}	
 		return false;
 	}
 
@@ -303,7 +298,11 @@ public class DataManager {
 							p.getStockQuantity(), p.getSupplierId(), p.getDescription()});
 				}
 				break;
+<<<<<<< Updated upstream
 			case 3: //Staff table
+=======
+			case "Administrators": //Staff table
+>>>>>>> Stashed changes
 				Object staffColumns[] = {"ID", "Name", "Phone number", "Job", "Hash"};
 				tableModel = new DefaultTableModel(staffColumns, 0);
 				for(Staff s : staffList) {
