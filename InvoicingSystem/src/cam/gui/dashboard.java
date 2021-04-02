@@ -75,7 +75,7 @@ public class dashboard extends JFrame {
 	    table.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 	    table.setEnabled(false);
 	    table.setFont(new Font("Arial", Font.PLAIN, 12));
-	    table.setModel(data.generateTable(""));
+	    table.setModel(data.generateTable("", 0));
 	    table.setFillsViewportHeight(true);
 	    table.getTableHeader().setOpaque(false);
 	    table.getTableHeader().setBackground(new Color(220,220,220));
@@ -110,19 +110,37 @@ public class dashboard extends JFrame {
 		        	}catch(Exception ex){	
 		        	} finally {
 			        	if(selectionString.equals("Invoice")) { 
-			        		Invoice inv = new Invoice();
-			        		Dimension size = Toolkit. getDefaultToolkit(). getScreenSize();
-			        		eastPanel.remove(scrollPane);
-			        		eastPanel.remove(title);
-			        		eastPanel.setLayout(new BorderLayout());
-			        		invoice = inv.generateInvoice();
-			        		eastPanel.add(invoice, BorderLayout.CENTER);
-			        		mainFrame.setSize((int)size.getWidth()/2, (int)size.getHeight()/2);
-			        		mainFrame.setLocationRelativeTo(null);
+			        		boolean valid = false;
+			        		int ans = 0;
+			        		do {
+				        		try {
+					        		ans = Integer.parseInt(JOptionPane.showInputDialog(mainFrame,"Please enter an order ID to display invoice.",JOptionPane.INFORMATION_MESSAGE));
+					        		if(data.isOrderID(ans) == true) {
+					        			valid = true;
+					        		}else {
+					        			JOptionPane.showMessageDialog(mainFrame, ans + " is not an existing order ID.");
+					        		}
+				        		}catch(java.lang.NumberFormatException error) {
+				        			JOptionPane.showMessageDialog(mainFrame, "Please enter an intenger value.");
+				        			break;
+				        		}
+			        		}while(valid != true);
+			        		
+				        	if(valid == true) {
+				        		Invoice inv = new Invoice();
+				        		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+				        		eastPanel.remove(scrollPane);
+				        		eastPanel.remove(title);
+				        		eastPanel.setLayout(new BorderLayout());
+				        		invoice = inv.generateInvoice(ans);
+				        		eastPanel.add(invoice, BorderLayout.CENTER);
+				        		mainFrame.setSize((int)size.getWidth()/2, (int)size.getHeight()/2);
+				        		mainFrame.setLocationRelativeTo(null);
+				        	}
 			        	}else {
 			        		eastPanel.add(title, BorderLayout.NORTH);
 			        		eastPanel.add(scrollPane, BorderLayout.CENTER);
-							table.setModel(data.generateTable(selectionString));
+							table.setModel(data.generateTable(selectionString, 0));
 							title.setText(selectionString);		
 			        	}
 		        		mainFrame.revalidate();
@@ -173,9 +191,22 @@ public class dashboard extends JFrame {
 		updateBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		updateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-			}
-		});
+				int ans;
+				boolean valid = false;
+				do {
+	        		try {
+		        		ans = Integer.parseInt(JOptionPane.showInputDialog(mainFrame, "Please enter a product ID.",JOptionPane.INFORMATION_MESSAGE));
+		        		if(data.doesProductExist(ans) == true) {
+		        			valid = true;
+		        		}else {
+		        			JOptionPane.showMessageDialog(mainFrame, ans + " is not an existing product ID.");
+		        		}
+	        		}catch(Exception err) {
+	        			JOptionPane.showMessageDialog(mainFrame, "Please enter an intenger value.");
+	        			break;
+	        		};
+				}while(valid != true);
+		}});
 		updateBtn.setBackground(Color.WHITE);
 		
 		//Button to cancel bookings
@@ -189,8 +220,7 @@ public class dashboard extends JFrame {
 		reportBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-			}
-		});
+		}});
 		reportBtn.setBackground(Color.WHITE);
 		GroupLayout groupLayout = new GroupLayout(mainFrame.getContentPane());
 		groupLayout.setHorizontalGroup(

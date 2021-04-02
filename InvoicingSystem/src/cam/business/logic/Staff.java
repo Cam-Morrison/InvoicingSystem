@@ -58,4 +58,11 @@ public class Staff {
 	public String getPasswordHash() {
 		return passwordHash;
 	}
+	
+	public String toString() {
+		return 
+				"ID: " + getStaffID() + "\n" +
+			    getFirstName() + " " + getLastName() + "\n" +
+			    getPhoneNumber();
+	}
 }

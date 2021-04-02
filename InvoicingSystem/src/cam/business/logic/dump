@@ -1,0 +1,27 @@
+String driver = "com.mysql.cj.jdbc.Driver";
+String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
+String user = "root";
+String password = "root";
+
+try {
+	Connection myConn = DriverManager.getConnection(url, user, password);
+	Statement myStmt = myConn.createStatement();
+	String sql = null;
+	sql = "INSERT INTO `supplier` " + "VALUES (1, 'Samsung', '+44 3232 3132', 'help@samsung.com')";
+	myStmt.executeUpdate(sql);			    
+	sql = "INSERT INTO `product` " + "VALUES (1, 'Samsung s20', 3, 1600.00, 1)";
+	myStmt.executeUpdate(sql);						   
+	sql = "INSERT INTO `order` " + "VALUES (1, '2014-01-28', 1408.0, '2014-03-28', 1, 1)";
+	myStmt.executeUpdate(sql);									
+	sql = "INSERT INTO staff " + "VALUES (1, 'Susan', 'Gardner', '+44 1632 960744', 'Sales rep', '40bd001563085fc35165329ea1ff5c5ecbdbbeef')";
+	myStmt.executeUpdate(sql);			    
+	sql = "INSERT INTO staff " + "VALUES (2, 'Cameron', 'Morrison', '+44 3232 960354', 'Technical officer', '5f6955d227a320c7f1f6c7da2a6d96a851a8118f')";
+	myStmt.executeUpdate(sql);					
+	sql = "INSERT INTO customer " + "VALUES (1, 'Cameron', 'Morrison', 'test@gmail.com')";
+	myStmt.executeUpdate(sql);
+	sql = "INSERT INTO address " + "VALUES ('15 lordhome', 'Edinburgh', 'FK3 94J', 'Scotland', 1)";
+	myStmt.executeUpdate(sql);
+	sql = "INSERT INTO `invoice_item` " + "VALUES (1, 'Flagship smartphone 12gb ram', 12.00, 1, 1)";
+	myStmt.executeUpdate(sql);			
+	myConn.close();			
+}catch(SQLException e) {}	

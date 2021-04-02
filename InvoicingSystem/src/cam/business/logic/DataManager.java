@@ -82,6 +82,16 @@ public class DataManager {
 		return false;
 	}
 	
+	//Checks order ID exists
+	public boolean isOrderID(int id){
+		for(Transactions t : orderList) {
+			if(t.getOrderId() == id) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	//Updates product in list
 	public boolean updateProduct(int id) {
 		if(doesProductExist(id) == true) {
@@ -135,26 +145,8 @@ public class DataManager {
 	//	try {
 	//		//Creating connection
 	//		Connection myConn = DriverManager.getConnection(url, user, password);
-	//		Statement myStmt = myConn.createStatement();
-	//		String sql = null;
-	//		sql = "INSERT INTO `supplier` " + "VALUES (1, 'Samsung', '+44 3232 3132', 'help@samsung.com')";
-	//	    myStmt.executeUpdate(sql);			    
-	//		sql = "INSERT INTO `product` " + "VALUES (1, 'Samsung s20', 3, 1600.00, 1)";
-	//	    myStmt.executeUpdate(sql);						   
-	//		sql = "INSERT INTO `order` " + "VALUES (1, '2014-01-28', 60.00, '2014-03-28', 1, 1)";
-	//	    myStmt.executeUpdate(sql);									
-	//		sql = "INSERT INTO staff " + "VALUES (1, 'Susan', 'Gardner', '+44 1632 960744', 'Sales rep', '40bd001563085fc35165329ea1ff5c5ecbdbbeef')";
-	//	    myStmt.executeUpdate(sql);			    
-	//		sql = "INSERT INTO staff " + "VALUES (2, 'Cameron', 'Morrison', '+44 3232 960354', 'Technical officer', '5f6955d227a320c7f1f6c7da2a6d96a851a8118f')";
-	//	    myStmt.executeUpdate(sql);					
-	//		sql = "INSERT INTO customer " + "VALUES (1, 'Cameron', 'Morrison', 'test@gmail.com')";
-	//	    myStmt.executeUpdate(sql);
-	//		sql = "INSERT INTO address " + "VALUES ('15 lordhome', 'Edinburgh', 'FK3 94J', 'Scotland', 1)";
-	//	    myStmt.executeUpdate(sql);
-	//		sql = "INSERT INTO `invoice_item` " + "VALUES (1, 'Flagship smartphone 12gb ram', 12.00, 1, 1)";
-	//	    myStmt.executeUpdate(sql);			
-	//		myConn.close();
-			
+	//		Statement myStmt = myConn.createStatement();			
+	//		myConn.close();	
 	//	}catch(SQLException e) {}	
 		return false;
 	}
@@ -195,7 +187,6 @@ public class DataManager {
 				    	Clients customer = new Clients(rs.getString("first_name"), rs .getString("last_name"), rs.getInt("customer_id"), rs.getString("email"),  
 				    			rs.getString("street_address"), rs.getString("city"), rs.getString("zip_code"), rs.getString("country"));
 				    	clientList.add(customer);
-				    	System.out.println(clientList.get(0).getCountry());
 				    }
 				      
 				    
@@ -207,7 +198,8 @@ public class DataManager {
 				        sql = "SELECT * FROM `invoice_item` WHERE order_order_id = " + rs.getInt("order_id");    
 				        rs2 = myStmt2.executeQuery(sql);
 				        while(rs2.next()){
-				        	InvoiceItem item = new InvoiceItem(rs2.getInt("purchase_quantity"), rs2.getString("item_description"), rs2.getDouble("discount"), rs2.getInt("order_order_id"), rs2.getInt("product_product_id"));
+				        	InvoiceItem item = new InvoiceItem(rs2.getInt("purchase_quantity"), rs2.getString("item_description"), rs2.getDouble("discount"),
+				        			rs2.getInt("order_order_id"), rs2.getInt("product_product_id"));
 				        	list.add(item);
 				        }
 				      		        
@@ -215,9 +207,6 @@ public class DataManager {
 				    			rs.getInt("customer_customer_id"), rs.getInt("staff_staff_id"), rs.getInt("shipping_id"), rs.getString("shipping_method"),
 				    			rs.getDate("estimated_delivery_date"), list);
 				    	orderList.add(order); 
-				    	
-				    	System.out.println(orderList.get(0).getOrderId());
-				    	System.out.println(orderList.get(0).getItems().get(0).getItemDescription());
 				    }
 				    
 				    sql = "SELECT * FROM `product`";
@@ -236,7 +225,6 @@ public class DataManager {
 				    }
 				    break;
 			}
-			
 		    myConn.close();
 		    return true;
 		    
@@ -260,6 +248,27 @@ public class DataManager {
 		return orderList;
 	}
 	
+	//Returns a single order object
+	public Transactions returnTransactions(int id){
+		//User is displayed id + 1 so the ID doesn't show up as 0.
+		return orderList.get(id - 1); 
+	}
+	
+	//Returns an informative string for the payment box on the invoice panel
+	public String returnPayment(int id) {
+		return "" + orderList.get(id - 1).getDueDate();
+	}
+	
+	//Returns an informative string for the shipping box on the invoice panel
+	public String returnShipping(int id) {
+		return "" + orderList.get(id - 1).toString();
+	}
+	
+	//Returns an informative string for the staff box on the invoice panel
+	public String returnStaffInfo(int id) {
+		return staffList.get(id - 1).toString();
+	}
+	
 	//Returns list of Supplier objects
 	public ArrayList<Suppliers> returnSuppliers(){
 		return supplierList;
@@ -274,23 +283,40 @@ public class DataManager {
 	public ArrayList<Staff> returnStaff(){
 		return staffList;
 	}
+	
+	//Calculate total cost using discount % and each product cost
+	public double calculateTotal(int id) {
+		double totalCost = 0;
+		double price;
+		for(InvoiceItem it : orderList.get(id - 1).getItems()) {
+			price = (productList.get(it.getProductId() - 1).getPrice()) * it.getPurchaseQuantity();
+			totalCost += (price - (price * it.getDiscount() / 100));
+		}
+		return totalCost;
+	}
 
 	//Method to generate and return populated table
-	public DefaultTableModel generateTable(String option) {
+	public DefaultTableModel generateTable(String option, int id) {
 		DefaultTableModel tableModel;
 		switch(option) {
 			default: //Default Orders table
 				Object orderColumns[] = { "ID", "Date", "Customer ID", "Staff ID", "Shipping ID", "Cost"};
 				tableModel = new DefaultTableModel(orderColumns, 0);
 				for(Transactions t : orderList) {
-					tableModel.addRow(new Object[] { t.getOrderId(), t.getOrderDate(),
-							t.getCustomerId(), t.getStaffId(), t.getShippingId(), t.getTotalCost()});
+						tableModel.addRow(new Object[] { t.getOrderId(), t.getOrderDate(),
+						t.getCustomerId(), t.getStaffId(), t.getShippingId(), t.getTotalCost()});
 				} 
 				break;
 			case "Customers": //Clients users table
 				Object clientsColumns[] = {"ID", "Name", "Email", "Address", "City", "Zip code", "Country"};
 				tableModel = new DefaultTableModel(clientsColumns, 0);
-				for(Clients c : clientList) {
+				if(id == 0) {
+					for(Clients c : clientList) {
+						tableModel.addRow(new Object[] { c.getCustomerId(), c.getFirstName() + " " + c.getLastName(),
+						c.getEmail(), c.getStreetAddress(), c.getCity(), c.getZipCode(), c.getCountry()});
+					}
+				} else {
+					Clients c = clientList.get(id - 1);
 					tableModel.addRow(new Object[] { c.getCustomerId(), c.getFirstName() + " " + c.getLastName(),
 					c.getEmail(), c.getStreetAddress(), c.getCity(), c.getZipCode(), c.getCountry()});
 				}
@@ -325,9 +351,15 @@ public class DataManager {
 					tableModel.addRow(new Object[] { s.getSupplierID(), s.getCompanyName(), s.getPhoneNumber(), s.getEmail()});
 				}
 				break;
-				
+			case "Items": //Items
+				Object itemsColumns[] = {"Order ID", "Product ID", "Quantity", "Description", "Price", "Discount"};
+				tableModel = new DefaultTableModel(itemsColumns, 0);
+				for(InvoiceItem it : orderList.get(id - 1).getItems()) {
+					tableModel.addRow(new Object[] { it.getOrderId(), it.getProductId(), it.getPurchaseQuantity(), 
+							it.getItemDescription(), productList.get(it.getProductId() - 1).getPrice(), it.getDiscount() + "%"});
+				}
+				break;			
 		}
-
 		return tableModel;
 	} 	
 }

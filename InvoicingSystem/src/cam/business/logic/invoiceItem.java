@@ -7,7 +7,6 @@ class InvoiceItem {
 	private int orderId;
 	private int productId;
 	
-	
 	InvoiceItem(int purchaseQuantity, String itemDescription, double discount, int orderId, int productId){
 		this.purchaseQuantity = purchaseQuantity;
 		this.itemDescription = itemDescription;
@@ -46,8 +45,4 @@ class InvoiceItem {
 	public int getProductId() {
 		return productId;
 	}
-	
-	
-	
-	
 }

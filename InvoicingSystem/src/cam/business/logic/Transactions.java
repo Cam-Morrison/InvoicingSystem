@@ -3,7 +3,7 @@ package cam.business.logic;
 import java.util.ArrayList;
 import java.util.Date;
 
-class Transactions {
+public class Transactions {
 	private int orderId;
 	private Date orderDate;
 	private double totalCost;
@@ -64,7 +64,7 @@ class Transactions {
 	public int getCustomerId() {
 		return customerId;
 	}
-	/**
+	/** 
 	 * @return the staffId
 	 */
 	public int getStaffId() {
@@ -93,5 +93,14 @@ class Transactions {
 	 */
 	public ArrayList<InvoiceItem> getItems() {
 		return items;
+	}	
+	
+	//Returns information on shipping
+	public String toString() {
+		return 
+			"Shipping ID: " + getShippingId() + "\n"
+			+ getShippingMethod() + "\n" +
+			"Est delivery date, \n"
+			+ getEstimatedDate();
 	}
 }
