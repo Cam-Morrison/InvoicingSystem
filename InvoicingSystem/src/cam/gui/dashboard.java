@@ -35,7 +35,11 @@ public class dashboard extends JFrame {
 	private JLabel title;
 	private JFrame mainFrame;
 	private JScrollPane scrollPane;
+	private JFrame productForm;
+	private JFrame updateForm;
+	private JFrame orderForm;
 	private JPanel invoice;
+	private Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 	private DataManager data = new DataManager();
 
 	/**
@@ -53,11 +57,8 @@ public class dashboard extends JFrame {
 			public void windowClosing(WindowEvent e)
 			{
 				//Closing event
-				Driver driv = new Driver();
-				if(driv.confirmDecisionDialog() == true) {
-					mainFrame.dispose();
-					System.exit(0);
-				}
+				mainFrame.dispose();
+				System.exit(0);
 			}
 		});
 		mainFrame.setTitle("Invoicing system");
@@ -99,14 +100,13 @@ public class dashboard extends JFrame {
 		displayBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent  e) {
+				closeFrames();
 				Object options[] = {"Transactions", "Customers", "Suppliers", "Products", "Administrators", "Shipping", "Invoice"};
 		        Object selectionObject = JOptionPane.showInputDialog(mainFrame, "Choose", "Menu", JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		        if(!(selectionObject == null)) {
 		        	String selectionString = selectionObject.toString();
 		        	try {
 		        		eastPanel.remove(invoice);
-		        		mainFrame.setBounds(100, 100, 739, 487);
-		        		mainFrame.setLocationRelativeTo(null);
 		        	}catch(Exception ex){	
 		        	} finally {
 			        	if(selectionString.equals("Invoice")) { 
@@ -128,7 +128,6 @@ public class dashboard extends JFrame {
 			        		
 				        	if(valid == true) {
 				        		Invoice inv = new Invoice();
-				        		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 				        		eastPanel.remove(scrollPane);
 				        		eastPanel.remove(title);
 				        		eastPanel.setLayout(new BorderLayout());
@@ -138,10 +137,29 @@ public class dashboard extends JFrame {
 				        		mainFrame.setLocationRelativeTo(null);
 				        	}
 			        	}else {
-			        		eastPanel.add(title, BorderLayout.NORTH);
-			        		eastPanel.add(scrollPane, BorderLayout.CENTER);
 							table.setModel(data.generateTable(selectionString, 0));
 							title.setText(selectionString);		
+			        		eastPanel.add(title);
+			        		eastPanel.add(scrollPane);	
+
+			        		GroupLayout gl_eastPanel = new GroupLayout(eastPanel);
+			        		gl_eastPanel.setHorizontalGroup(
+			        			gl_eastPanel.createParallelGroup(Alignment.TRAILING)
+			        				.addGroup(gl_eastPanel.createSequentialGroup()
+			        					.addGroup(gl_eastPanel.createParallelGroup(Alignment.TRAILING)
+			        						.addComponent(title, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
+			        						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
+			        					.addContainerGap())
+			        		);
+			        		gl_eastPanel.setVerticalGroup(
+			        			gl_eastPanel.createParallelGroup(Alignment.LEADING)
+			        				.addGroup(gl_eastPanel.createSequentialGroup()
+			        					.addContainerGap()
+			        					.addComponent(title)
+			        					.addPreferredGap(ComponentPlacement.RELATED)
+			        					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE))
+			        		);
+			        		eastPanel.setLayout(gl_eastPanel);
 			        	}
 		        		mainFrame.revalidate();
 		        		mainFrame.repaint();
@@ -161,7 +179,13 @@ public class dashboard extends JFrame {
 		orderBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		orderBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				closeFrames();
+				NewOrder orderPage = new NewOrder();
+				orderForm = orderPage.clientInfoForm();
+				orderForm.setVisible(true);
+				orderForm.setSize((int)size.getWidth() / 4, (int)(size.getHeight() / 2.5));
+				orderForm.setResizable(false);
+				orderForm.setLocationRelativeTo(null);
 			}
 		});
 		orderBtn.setBackground(Color.WHITE);
@@ -176,7 +200,13 @@ public class dashboard extends JFrame {
 		productBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		productBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				closeFrames();
+				newProduct productPage = new newProduct();
+				productForm = productPage.addProduct();
+				productForm.setVisible(true);
+				productForm.setSize((int)size.getWidth() / 4, (int)(size.getHeight() / 2.5));
+				productForm.setResizable(false);
+				productForm.setLocationRelativeTo(null);
 			}
 		});
 		productBtn.setBackground(Color.WHITE);
@@ -191,22 +221,15 @@ public class dashboard extends JFrame {
 		updateBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		updateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int ans;
-				boolean valid = false;
-				do {
-	        		try {
-		        		ans = Integer.parseInt(JOptionPane.showInputDialog(mainFrame, "Please enter a product ID.",JOptionPane.INFORMATION_MESSAGE));
-		        		if(data.doesProductExist(ans) == true) {
-		        			valid = true;
-		        		}else {
-		        			JOptionPane.showMessageDialog(mainFrame, ans + " is not an existing product ID.");
-		        		}
-	        		}catch(Exception err) {
-	        			JOptionPane.showMessageDialog(mainFrame, "Please enter an intenger value.");
-	        			break;
-	        		};
-				}while(valid != true);
-		}});
+					closeFrames();
+					UpdateForm up = new UpdateForm();
+					updateForm = up.generateForm();
+					updateForm.setVisible(true);
+					updateForm.setSize((int)size.getWidth() / 4, (int)(size.getHeight() / 2.5));
+					updateForm.setResizable(false);
+					updateForm.setLocationRelativeTo(null);
+				}
+		});
 		updateBtn.setBackground(Color.WHITE);
 		
 		//Button to cancel bookings
@@ -294,5 +317,18 @@ public class dashboard extends JFrame {
 		//Position JFrame in middle of monitor
 		mainFrame.setLocationRelativeTo(null);
 		mainFrame.setVisible(true);
+	}
+	
+	//Closes any extra frames that could be open before creating another
+	private void closeFrames() {
+		try {
+			productForm.dispose();
+		}catch(NullPointerException ex) {};
+		try {
+			orderForm.dispose();
+		}catch(NullPointerException ex) {};
+		try {
+			updateForm.dispose();
+		}catch(NullPointerException ex) {};
 	}
 }

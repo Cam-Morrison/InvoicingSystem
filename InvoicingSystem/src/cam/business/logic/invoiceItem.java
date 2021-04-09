@@ -2,17 +2,17 @@ package cam.business.logic;
 
 class InvoiceItem {
 	private int purchaseQuantity;
-	private String itemDescription;
 	private double discount;
 	private int orderId;
 	private int productId;
+	private double purchasePrice;
 	
-	InvoiceItem(int purchaseQuantity, String itemDescription, double discount, int orderId, int productId){
+	InvoiceItem(int purchaseQuantity, double discount, int orderId, int productId, double purchasePrice){
 		this.purchaseQuantity = purchaseQuantity;
-		this.itemDescription = itemDescription;
 		this.discount = discount;
 		this.orderId = orderId;
 		this.productId = productId;	
+		this.purchasePrice = purchasePrice;
 	}
 	
 	/**
@@ -20,12 +20,6 @@ class InvoiceItem {
 	 */
 	public int getPurchaseQuantity() {
 		return purchaseQuantity;
-	}
-	/**
-	 * @return the itemDescription
-	 */
-	public String getItemDescription() {
-		return itemDescription;
 	}
 	/**
 	 * @return the discount
@@ -44,5 +38,11 @@ class InvoiceItem {
 	 */
 	public int getProductId() {
 		return productId;
+	}
+	/**
+	 * @return the purchasePrice
+	 */
+	public double getPurchasePrice() {
+		return purchasePrice;
 	}
 }

@@ -112,27 +112,4 @@ public class Driver {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getRootPane().setDefaultButton(loginButton);
 	}
-	
-	
-	private void createInvoice() {
-		
-	}
-	
-	private void createOrder() {
-		
-	}
-	
-	private void manageProducts() {
-		
-	}
-	
-	//Reusable dialog to confirm the users decision 
-	public boolean confirmDecisionDialog() {
-		int dialogResult = JOptionPane.showConfirmDialog(null, "Please confirm your decision.", "Confirmation", JOptionPane.YES_NO_OPTION);
-		if(dialogResult == 0) {
-			return true;
-		} else {
-			return false;
-		} 
-	}
 }

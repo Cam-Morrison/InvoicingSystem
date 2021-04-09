@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -21,19 +22,20 @@ public class DataManager {
 	//Instance variables
 	private final Pattern namePattern = Pattern.compile("^[A-Z][a-z]+$");
 	private final Pattern emailPattern = Pattern.compile("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$");
+    private final Pattern phonePattern = Pattern.compile("^(\\+\\d{1,3}( )?)?((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$" 
+    + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?){2}\\d{3}$" + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?)(\\d{2}[ ]?){2}\\d{2}$");
+    private final Pattern postcodePattern = Pattern.compile("^[A-Z]{1,2}[0-9R][0-9A-Z]? [0-9][ABD-HJLNP-UW-Z]{2}$");
 	private static ArrayList<Transactions> orderList = new ArrayList<Transactions>();
 	private static ArrayList<Clients> clientList = new ArrayList<Clients>();
 	private static ArrayList<Suppliers> supplierList = new ArrayList<Suppliers>();
 	private static  ArrayList<Products> productList = new ArrayList<Products>();
 	private static ArrayList<Staff> staffList = new ArrayList<Staff>();
+	private String updateSQL;
+	private static int currentStaffMember;
 	
-	//Constructor
-	public DataManager(){
-	}
 	
 	//Validate login credentials 
 	public boolean validateLogin(int staffID, String password) throws SQLException {
-		
 		//Checks if the program has already loaded in staff 
 		if(staffList.isEmpty() == true) {
 			//If not load staff table
@@ -41,13 +43,12 @@ public class DataManager {
 				return false;
 			}
 		}
-		
-		//For number of staff
+		//For number of staff 
 		for(Staff admin : staffList) {
 			//Check if staff ID is equal to user input
 			if(admin.getStaffID() == staffID) {
 				
-				//Hashing algorithm 
+				//SHA-1 hashing algorithm 
 				StringBuilder hash = new StringBuilder();
 				try {
 					MessageDigest sha = MessageDigest.getInstance("SHA-1");
@@ -58,19 +59,23 @@ public class DataManager {
 						hash.append(digits[(b & 0xf0) >> 4]);
 						hash.append(digits[b & 0x0f]);
 					}
-				} catch (NoSuchAlgorithmException e) {return false;}
+				} catch (NoSuchAlgorithmException e) {
+					return false;
+				}
 
 				//Validate login password hash - check hash equals hash stored in database
 				if(hash.toString().equals(staffList.get(staffID - 1).getPasswordHash())) {
 					loadDatabase(2);
-					return true;
+					currentStaffMember  = staffID;
+					System.out.println(DataManager.currentStaffMember);
+				    return true;
 				}
+				//hash 40bd001563085fc35165329ea1ff5c5ecbdbbeef, pass 123, staff id 1
+				//hash 5f6955d227a320c7f1f6c7da2a6d96a851a8118f, pass 321, staff id 2
 			}
 		}
 		return false;
 	}
-	//hash 40bd001563085fc35165329ea1ff5c5ecbdbbeef, pass 123, staff id 1
-	//hash 5f6955d227a320c7f1f6c7da2a6d96a851a8118f, pass 321, staff id 2
 	
 	//Checks productList for product
 	public boolean doesProductExist(int id) {
@@ -80,6 +85,42 @@ public class DataManager {
 			}
 		}
 		return false;
+	}
+	
+	//Returns the status of the product (for sale / not for sale)
+	public boolean forSale(int id) {
+		if(doesProductExist(id)) {
+			for(Products p : productList) {
+				if(p.getProductId() == id && p.getAvaliable() == 1) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	//Checks supplier exists
+	public boolean doesSupplierExist(int id){
+		for(Suppliers s : supplierList) {
+			if(s.getSupplierID() == id) {
+				return true;
+			}
+		}
+		return false;
+	}	
+	
+	//Adds a new supplier
+	public boolean addSupplier(String name, String phoneNumber, String email) {
+		try {
+			int id = supplierList.get(supplierList.size() - 1).getSupplierID();
+			id += 1;
+			Suppliers s = new Suppliers(id, name, phoneNumber, email);
+			supplierList.add(s);
+			storeDatabase(4, id);
+			return true;
+		}catch(Exception e) {
+			return false;
+		}
 	}
 	
 	//Checks order ID exists
@@ -93,11 +134,28 @@ public class DataManager {
 	}
 	
 	//Updates product in list
-	public boolean updateProduct(int id) {
+	public boolean updateProduct(int id, int quantity, String desc, double price) {
 		if(doesProductExist(id) == true) {
-			//TODO
+			//Update product class
+			productList.get(id - 1).setStockQuantity(quantity);
+			productList.get(id - 1).setPrice(price);
+			productList.get(id - 1).setDesc(desc);
+			//Save to storage
+			this.updateSQL = "UPDATE product SET quantity = " + quantity + ", description = '" + desc + "', price = " + price + " WHERE product_id = " + id + ";"; 
+			storeDatabase(2, id);
+			return true;
 		}
 		return false;
+	}
+	
+	//Returns stock count
+	public int getStockQuantity(int id) {
+		for(Products p : productList) {
+			if(p.getProductId() == id) {
+				return p.getStockQuantity();
+			}
+		}
+		return 0;
 	}
 	
 	//Removes product from list
@@ -105,7 +163,10 @@ public class DataManager {
 		if(doesProductExist(id) == true) {
 			for(Products p : productList) {
 				if(p.getProductId() == id) {
-					productList.remove(p);
+					//Change product availability status in class
+					p.swapAvaliable();
+					//Change product availability status in DB
+					storeDatabase(1, id);
 					return true;
 				}
 			}
@@ -114,15 +175,83 @@ public class DataManager {
 	}
 	
 	//Creates a new product
-	public boolean addProduct(/*String double int int string*/) {
-		//TODO
-		return false;
+	public boolean addProduct(int id, String name, String desc, double price, int quantity) {
+		try {
+			if(id < 0) {
+				id = supplierList.get(supplierList.size() - 1).getSupplierID();
+			}
+			int maxID = productList.get(productList.size() - 1).getProductId();
+			maxID += 1;
+			Products p = new Products(maxID, name, price, quantity, id, 1, desc);
+			productList.add(p);
+			storeDatabase(3, maxID);
+			return true;
+		}catch(Exception e) {
+			return false;
+		}	
 	}
 	
 	//Creates a new order on clients behalf 
-	public boolean newOrder(/*String String String String String String String int int int */) {
-		//TODO
-		return false;
+	public boolean newOrder(int customerId, ArrayList<Integer> productIds, ArrayList<Integer> quantities, ArrayList<Double> discounts, String shippingMethod) {
+		try {
+			//Get the next increment in orderID
+			int newOrderID = orderList.get(orderList.size() - 1).getOrderId() + 1;
+			//Create an ArrayList to store all items 
+			ArrayList<InvoiceItem> items = new ArrayList<InvoiceItem>();
+			//Populate ArrayList
+			for(int i = 0; i < productIds.size(); i++) {
+				InvoiceItem item = new InvoiceItem(quantities.get(i), discounts.get(i), newOrderID, productIds.get(i), productList.get(productIds.get(i) - 1).getPrice());
+				items.add(item);
+			}
+			//Get current time
+	        long millis=System.currentTimeMillis();  
+	        java.sql.Date date = new java.sql.Date(millis);  
+	       
+	        //Calculate total cost including VAT
+	        double totalCost = calculateTotal(quantities, discounts, productIds);
+	        
+	        //Calculate the expected delivery date based off royal mail average delivery times
+	        Calendar deliveryDate = Calendar.getInstance();
+	        switch(shippingMethod) {
+	        	case "1st Class": //1 day
+	        		deliveryDate.add(Calendar.DAY_OF_YEAR,1);
+	        		break;
+	        	case "2nd Class": //3 days
+	        		deliveryDate.add(Calendar.DAY_OF_YEAR,3);
+	        		break;
+	        	default: //Standard UK delivery 5 days
+	        		deliveryDate.add(Calendar.DAY_OF_YEAR,5);
+	        		break;
+	        }
+	        java.sql.Date dueDate = new java.sql.Date(deliveryDate.getTimeInMillis());
+	       
+	        //Find highest shippingID and add to the increment 
+	        int shippingId = 0;
+	        for(Transactions t : orderList){
+	        	if(t.getShippingId() > shippingId) {
+	        		shippingId = t.getShippingId();
+	        	}
+	        }
+	        shippingId += 1;
+	        
+	        //Create order 
+			Transactions order = new Transactions(newOrderID, date, totalCost, date, customerId, DataManager.currentStaffMember, shippingId,
+					shippingMethod, dueDate, items);
+			orderList.add(order);
+			
+			//Store to database
+			storeDatabase(6, newOrderID);
+			
+			//Update quantity left in stock
+			for(InvoiceItem i : items) {
+				int avaliable = productList.get(i.getProductId() - 1).getStockQuantity();
+				productList.get(i.getProductId() - 1).setStockQuantity(avaliable - i.getPurchaseQuantity());
+				storeDatabase(7, i.getProductId());
+			}
+			return true;	
+		}catch(Exception e){
+			return false;
+		}
 	}
 	
 	// Method to verify the authenticity of user's entered name
@@ -135,20 +264,94 @@ public class DataManager {
 		return emailPattern.matcher(email).matches();
 	}
 	
+	//Method to verify the authenticity of the user's entered phone number
+	public boolean isValidPhone(String phone) {
+		return phonePattern.matcher(phone).matches();
+	}
+	
+	//Method to verify the authenticity of the user's entered UK post code
+	public boolean isValidPostcode(String postcode) {
+		return postcodePattern.matcher(postcode).matches();
+	}
+	
 	//Stores newly entered information to database
-	private boolean storeDatabase() {
-//		String driver = "com.mysql.cj.jdbc.Driver";
-//		String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
-//		String user = "root";
-//		String password = "root";
+	private boolean storeDatabase(int option, int ID) {
+		String driver = "com.mysql.cj.jdbc.Driver";
+		String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
+		String user = "root";
+		String password = "root";
 
-	//	try {
-	//		//Creating connection
-	//		Connection myConn = DriverManager.getConnection(url, user, password);
-	//		Statement myStmt = myConn.createStatement();			
-	//		myConn.close();	
-	//	}catch(SQLException e) {}	
-		return false;
+		try {
+			//Creating connection
+			Connection myConn = DriverManager.getConnection(url, user, password);
+			Statement myStmt = myConn.createStatement();	
+			String sql = null;
+			switch(option) {
+				case 1: //Remove or reintroduce product
+					sql = "UPDATE product SET avaliable = " + productList.get(ID - 1).getAvaliable() + " WHERE product_id = " + (ID);
+					myStmt.executeUpdate(sql);
+					break;	
+				case 2: //Update product details
+					sql = this.updateSQL;
+					myStmt.executeUpdate(sql);
+					break;
+				case 3: //add new product
+					Products p = productList.get(ID - 1);
+					sql = "INSERT INTO `product` " +
+						  "VALUES (" + p.getProductId() + ", '" + p.getName() + "', " + p.getStockQuantity()
+						  + ", " + p.getPrice() + ", " + p.getSupplierId() + ", " + p.getAvaliable()
+						  + ", '" + p.getDescription() + "');";
+					myStmt.executeUpdate(sql);
+					break;
+				case 4: //Stores a new supplier
+					Suppliers s = supplierList.get(ID - 1);
+					sql = "INSERT INTO `supplier` " +
+						  "VALUES (" + s.getSupplierID() + ", '" + s.getCompanyName() + "', '" + s.getPhoneNumber()
+						  + "', '" + s.getEmail() + "');";
+					myStmt.executeUpdate(sql);
+					break;
+				case 5: //Store new customer
+					Clients c = clientList.get(ID - 1);
+					sql = "INSERT INTO `customer` "
+						+ "VALUES (" + c.getCustomerId() + ", '" + c.getFirstName() + "', '" + c.getLastName() + "', '" + c.getEmail() + "');";
+					myStmt.executeUpdate(sql);
+					sql = "INSERT INTO `address` "
+						+ "VALUES ('" + c.getStreetAddress() + "', '" + c.getCity() + "', '" + c.getZipCode() + "', '" + c.getCountry() + "', " + c.getCustomerId() + ");";
+					myStmt.executeUpdate(sql);	
+					break;
+					
+				case 6: //store new transaction details
+					
+					//Saves order information
+					Transactions o = orderList.get(ID - 1);
+					sql = "INSERT INTO `order`" 
+							+ " VALUES (" + o.getOrderId() + ", '" + o.getOrderDate() + "', " + o.getTotalCost() + ", '" +
+							o.getDueDate() + "', " + o.getCustomerId() + ", " + o.getStaffId() + ");";
+					myStmt.executeUpdate(sql);
+					
+					//Saves all the invoice items
+					for(InvoiceItem i : orderList.get(ID - 1).getItems()) {
+						sql = "INSERT INTO `invoice_item` " +
+								  "VALUES (" + i.getPurchaseQuantity() + ", " + i.getDiscount() + ", " + i.getOrderId()
+								  + ", " + i.getProductId() + ", " + i.getPurchasePrice() + ");";
+						myStmt.executeUpdate(sql);
+					}
+	
+					sql = "INSERT INTO `shipping` "
+							+ "VALUES (" + o.getShippingId() + ", '" + o.getShippingMethod() + "', '" + o.getEstimatedDate() + "', " + o.getOrderId() + ");";
+					myStmt.executeUpdate(sql);
+					break;
+					
+				case 7: //Update product quantity
+					sql = "UPDATE `product` SET quantity = " + productList.get(ID - 1).getStockQuantity() +  " WHERE product_id = " + productList.get(ID - 1).getProductId() + ";";
+					myStmt.executeUpdate(sql);
+					break;
+			}
+			myConn.close();	
+			return true;
+		}catch(SQLException e) {
+			return false;
+		}	
 	}
 
 	//Loads any previous information from database
@@ -164,14 +367,12 @@ public class DataManager {
 			Connection myConn = DriverManager.getConnection(url, user, password);
 			Statement myStmt = myConn.createStatement();
 			Statement myStmt2 = myConn.createStatement();
-			
-			//Executing statement
 			String sql = null;
 			ResultSet rs = null;
 			ResultSet rs2 = null;
 			
 			switch(option) {
-				case 1:
+				case 1: //Load in staff information to validate login credentials 
 					sql = "SELECT * FROM staff";
 				    rs = myStmt.executeQuery(sql);
 				    while (rs.next()) {	
@@ -180,8 +381,9 @@ public class DataManager {
 				    }
 				    break;
 				    
-				case 2:	
-					sql = "SELECT * FROM customer, address";
+				case 2:	//Once login is successful, load in other information from database
+					
+					sql = "SELECT * FROM customer, address WHERE customer_id = customer_customer_id";
 				    rs = myStmt.executeQuery(sql);
 				    while (rs.next()) {	
 				    	Clients customer = new Clients(rs.getString("first_name"), rs .getString("last_name"), rs.getInt("customer_id"), rs.getString("email"),  
@@ -189,7 +391,6 @@ public class DataManager {
 				    	clientList.add(customer);
 				    }
 				      
-				    
 					sql = "SELECT * FROM `order`, `shipping` WHERE order_id = order_order_id";
 				    rs = myStmt.executeQuery(sql);
 				    while (rs.next()) {
@@ -198,8 +399,8 @@ public class DataManager {
 				        sql = "SELECT * FROM `invoice_item` WHERE order_order_id = " + rs.getInt("order_id");    
 				        rs2 = myStmt2.executeQuery(sql);
 				        while(rs2.next()){
-				        	InvoiceItem item = new InvoiceItem(rs2.getInt("purchase_quantity"), rs2.getString("item_description"), rs2.getDouble("discount"),
-				        			rs2.getInt("order_order_id"), rs2.getInt("product_product_id"));
+				        	InvoiceItem item = new InvoiceItem(rs2.getInt("purchase_quantity"), rs2.getDouble("discount"),
+				        			rs2.getInt("order_order_id"), rs2.getInt("product_product_id"), rs2.getDouble("purchase_price"));
 				        	list.add(item);
 				        }
 				      		        
@@ -213,10 +414,10 @@ public class DataManager {
 				    rs = myStmt.executeQuery(sql);
 				    while (rs.next()) {
 				    		Products p = new Products(rs.getInt("product_id"), rs.getString("name"), 
-				    				rs.getDouble("price"), rs.getInt("quantity"), rs.getInt("supplier_supplier_id"));
+				    				rs.getDouble("price"), rs.getInt("quantity"), rs.getInt("supplier_supplier_id"), rs.getInt("avaliable"), rs.getString("description"));
 				    		productList.add(p);
 				    }
-				    
+
 				    sql = "SELECT * FROM `supplier`";
 				    rs = myStmt.executeQuery(sql);
 				    while (rs.next()) {
@@ -228,9 +429,10 @@ public class DataManager {
 		    myConn.close();
 		    return true;
 		    
-		}catch(CommunicationsException e) { //Connection to DB port unavailable
-			JOptionPane.showMessageDialog(null, "Error connecting to database. Please free up port 3306. \nYou will now be redirected to a guide by medium.com.", "Communications link failure", JOptionPane.ERROR_MESSAGE);
-		    try {
+		}catch(CommunicationsException e) { //Connection to mySQL port unavailable; inform user
+			JOptionPane.showMessageDialog(null, "Error connecting to database. Please free up port 3306. \nYou will now be redirected to a guide by medium.com.", 
+					"Communications link failure", JOptionPane.ERROR_MESSAGE);
+		    try { //Open web link on how to fix issue for user
 		        Desktop.getDesktop().browse(new URL("https://medium.com/@javatechie/how-to-kill-the-process-currently-using-a-port-on-localhost-in-windows-31ccdea2a3ea").toURI());
 		    } catch (Exception ex) {}
 			System.exit(0);
@@ -238,19 +440,8 @@ public class DataManager {
 		return false;
 	} 
 	
-	//Returns list of client objects
-	public static ArrayList<Clients> returnClients(){
-		return clientList;
-	}
-
-	//Returns list of transactions objects
-	public ArrayList<Transactions> returnTransactions(){
-		return orderList;
-	}
-	
-	//Returns a single order object
+	//Returns a single orders information
 	public Transactions returnTransactions(int id){
-		//User is displayed id + 1 so the ID doesn't show up as 0.
 		return orderList.get(id - 1); 
 	}
 	
@@ -261,37 +452,28 @@ public class DataManager {
 	
 	//Returns an informative string for the shipping box on the invoice panel
 	public String returnShipping(int id) {
-		return "" + orderList.get(id - 1).toString();
+		return orderList.get(id - 1).toString();
 	}
 	
 	//Returns an informative string for the staff box on the invoice panel
 	public String returnStaffInfo(int id) {
-		return staffList.get(id - 1).toString();
+		int staffId = orderList.get(id - 1).getStaffId();
+		return staffList.get(staffId - 1).toString();
 	}
 	
-	//Returns list of Supplier objects
-	public ArrayList<Suppliers> returnSuppliers(){
-		return supplierList;
-	}
-	
-	//Returns list of Products objects
-	public ArrayList<Products> returnProducts(){
-		return productList;
-	}
-	
-	//Returns list of Staff objects
-	public ArrayList<Staff> returnStaff(){
-		return staffList;
-	}
-	
-	//Calculate total cost using discount % and each product cost
-	public double calculateTotal(int id) {
+	//Calculate total cost using each items quantity and discount percentage 
+	public double calculateTotal(ArrayList<Integer> quantities, ArrayList<Double> discounts, ArrayList<Integer> productIds) {
 		double totalCost = 0;
 		double price;
-		for(InvoiceItem it : orderList.get(id - 1).getItems()) {
-			price = (productList.get(it.getProductId() - 1).getPrice()) * it.getPurchaseQuantity();
-			totalCost += (price - (price * it.getDiscount() / 100));
-		}
+		//For every item associated with order
+		for(int i = 0; i < productIds.size(); i++) {
+			//invoice item price is equal to price - discount x quantity 
+			price = ((productList.get(productIds.get(i) - 1).getPrice()) * quantities.get(i));
+			//UK VAT 20%
+			price = price + ((price / 100) * 20);
+			//Add to total cost 
+			totalCost += (price - ((price / 100) * discounts.get(i)));
+		} 
 		return totalCost;
 	}
 
@@ -310,23 +492,23 @@ public class DataManager {
 			case "Customers": //Clients users table
 				Object clientsColumns[] = {"ID", "Name", "Email", "Address", "City", "Zip code", "Country"};
 				tableModel = new DefaultTableModel(clientsColumns, 0);
-				if(id == 0) {
+				if(id == 0) { //If ID = 0, then default option show all users
 					for(Clients c : clientList) {
 						tableModel.addRow(new Object[] { c.getCustomerId(), c.getFirstName() + " " + c.getLastName(),
 						c.getEmail(), c.getStreetAddress(), c.getCity(), c.getZipCode(), c.getCountry()});
 					}
-				} else {
+				} else { //If ID is specific then only return information for that one ID.
 					Clients c = clientList.get(id - 1);
 					tableModel.addRow(new Object[] { c.getCustomerId(), c.getFirstName() + " " + c.getLastName(),
 					c.getEmail(), c.getStreetAddress(), c.getCity(), c.getZipCode(), c.getCountry()});
 				}
 				break;
 			case "Products": //Product table
-				Object productColumns[] = { "ID", "Name", "Price", "Quantity", "Supplier"};
+				Object productColumns[] = { "ID", "Name", "Price", "Description", "Quantity", "Supplier", "Status"};
 				tableModel = new DefaultTableModel(productColumns, 0);
 				for(Products p : productList) {
-					tableModel.addRow(new Object[] { p.getProductId(), p.getName(), p.getPrice(), 
-							p.getStockQuantity(), p.getSupplierId()});
+					tableModel.addRow(new Object[] { p.getProductId(), p.getName(), p.getPrice(),
+							p.getDescription(), p.getStockQuantity(), p.getSupplierId(), p.getAvaliable()});
 				}
 				break;
 			case "Administrators": //Staff table
@@ -351,15 +533,29 @@ public class DataManager {
 					tableModel.addRow(new Object[] { s.getSupplierID(), s.getCompanyName(), s.getPhoneNumber(), s.getEmail()});
 				}
 				break;
-			case "Items": //Items
-				Object itemsColumns[] = {"Order ID", "Product ID", "Quantity", "Description", "Price", "Discount"};
+			case "Items": //Items table for invoice page
+				Object itemsColumns[] = {"Name", "Quantity", "Description", "Price", "Discount"};
 				tableModel = new DefaultTableModel(itemsColumns, 0);
 				for(InvoiceItem it : orderList.get(id - 1).getItems()) {
-					tableModel.addRow(new Object[] { it.getOrderId(), it.getProductId(), it.getPurchaseQuantity(), 
-							it.getItemDescription(), productList.get(it.getProductId() - 1).getPrice(), it.getDiscount() + "%"});
+					tableModel.addRow(new Object[] { productList.get(it.getProductId() - 1).getName(), it.getPurchaseQuantity(), 
+							productList.get(it.getProductId() - 1).getDescription(), "£" + (it.getPurchasePrice() * it.getPurchaseQuantity()), it.getDiscount() + "%"});
 				}
 				break;			
 		}
 		return tableModel;
-	} 	
+	}
+
+	//Creates or identifies customer
+	public int addCustomer(String forename, String surname, String email, String streetAddress, String city, String zipCode, String country) {
+		for(Clients c : clientList) {
+			if(c.getEmail().equals(email)) {
+				return c.getCustomerId();
+			}
+		}
+		int id = clientList.get(clientList.size() - 1).getCustomerId() + 1;
+		Clients customer = new Clients(forename, surname, id, email, streetAddress, city, zipCode, country);
+		clientList.add(customer);
+		storeDatabase(5, id);
+		return id;
+	} 		
 }

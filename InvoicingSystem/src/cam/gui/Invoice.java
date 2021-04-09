@@ -82,12 +82,17 @@ public class Invoice {
 		
 		JScrollPane orderScroll = new JScrollPane();
 		orderScroll.setBorder(null);
+		
+		JLabel vatLbl = new JLabel("VAT: 20%");
+		vatLbl.setHorizontalAlignment(SwingConstants.TRAILING);
+		vatLbl.setForeground(new Color(11, 26, 106));
+		vatLbl.setFont(new Font("Arial", Font.BOLD, 12));
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
+					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panel.createSequentialGroup()
 							.addComponent(orderScroll, GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE)
 							.addContainerGap())
@@ -113,8 +118,11 @@ public class Invoice {
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(shippingLbl, GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
 							.addContainerGap())
-						.addGroup(Alignment.LEADING, gl_panel.createSequentialGroup()
-							.addComponent(totalCostLbl, GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
+						.addGroup(gl_panel.createSequentialGroup()
+							.addComponent(totalCostLbl, GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
+							.addGap(47))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addComponent(vatLbl, GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
 							.addGap(47))))
 		);
 		gl_panel.setVerticalGroup(
@@ -140,9 +148,11 @@ public class Invoice {
 							.addComponent(shippingTxt, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE)))
 					.addGap(20)
 					.addComponent(orderScroll, GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGap(2)
+					.addComponent(vatLbl)
+					.addGap(2)
 					.addComponent(totalCostLbl)
-					.addGap(20))
+					.addGap(8))
 		);
 		
 		orderTable = new JTable();

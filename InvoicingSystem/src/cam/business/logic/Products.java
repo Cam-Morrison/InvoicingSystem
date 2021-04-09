@@ -6,13 +6,17 @@ class Products {
 	private double price;
 	private int stockQuantity;
 	private int supplierId;
+	private int avaliable;
+	private String description;
 	
-	Products(int productId, String name, double price, int stockQuantity, int supplierId){
+	Products(int productId, String name, double price, int stockQuantity, int supplierId, int avaliable, String description){
 		this.productId = productId;
 		this.name = name;
 		this.price = price;
 		this.stockQuantity = stockQuantity;
 		this.supplierId = supplierId;
+		this.avaliable = avaliable;
+		this.description = description;
 	}
 
 	/**
@@ -51,17 +55,50 @@ class Products {
 	}
 
 	/**
+	 * @return the availability of product
+	 */
+	public int getAvaliable() {
+		return avaliable;
+	}
+	
+	/**
+	 * @return the string of description
+	 */
+	public String getDescription() {
+		return description;
+	}
+	
+	/**
+	 * @param remove product
+	 */
+	public void swapAvaliable() {
+		if(this.avaliable == 1) {
+			this.avaliable = 0;
+		} else {
+			this.avaliable = 1;
+		}
+	}
+	
+	/**
 	 * @param price the price to set
 	 */
-	public void setPrice(double price) {
+	protected void setPrice(double price) {
 		this.price = price;
 	}
 
 	/**
-	 * @param stockQuantity the stockQuantity to set
+	 * @param update stock quantity
 	 */
-	public void setStockQuantity(int stockQuantity) {
+	protected void setStockQuantity(int stockQuantity) {
 		this.stockQuantity = stockQuantity;
 	}
+	
+	/**
+	 * @param update description
+	 */
+	protected void setDesc(String desc) {
+		this.description = desc;
+	}
+	
 
 }

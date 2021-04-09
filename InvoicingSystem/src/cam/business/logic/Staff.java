@@ -59,10 +59,9 @@ public class Staff {
 		return passwordHash;
 	}
 	
+	//Used to display relevant information in the staff text area on the invoice panel.
 	public String toString() {
-		return 
-				"ID: " + getStaffID() + "\n" +
-			    getFirstName() + " " + getLastName() + "\n" +
-			    getPhoneNumber();
+		return  "ID: " + getStaffID() + "\n" + getFirstName() + " " + 
+				getLastName() + "\n" + getPhoneNumber();
 	}
 }

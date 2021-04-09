@@ -9,7 +9,7 @@ try {
 	String sql = null;
 	sql = "INSERT INTO `supplier` " + "VALUES (1, 'Samsung', '+44 3232 3132', 'help@samsung.com')";
 	myStmt.executeUpdate(sql);			    
-	sql = "INSERT INTO `product` " + "VALUES (1, 'Samsung s20', 3, 1600.00, 1)";
+	sql = "INSERT INTO `product` " + "VALUES (1, 'Samsung s20', 3, 1600.00, 1, 'Flagship smartphone 12gb ram')";
 	myStmt.executeUpdate(sql);						   
 	sql = "INSERT INTO `order` " + "VALUES (1, '2014-01-28', 1408.0, '2014-03-28', 1, 1)";
 	myStmt.executeUpdate(sql);									
@@ -21,7 +21,7 @@ try {
 	myStmt.executeUpdate(sql);
 	sql = "INSERT INTO address " + "VALUES ('15 lordhome', 'Edinburgh', 'FK3 94J', 'Scotland', 1)";
 	myStmt.executeUpdate(sql);
-	sql = "INSERT INTO `invoice_item` " + "VALUES (1, 'Flagship smartphone 12gb ram', 12.00, 1, 1)";
+	sql = "INSERT INTO `invoice_item` " + "VALUES (1, 12.00, 1, 1)";
 	myStmt.executeUpdate(sql);			
 	myConn.close();			
 }catch(SQLException e) {}	
