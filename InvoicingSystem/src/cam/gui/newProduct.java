@@ -38,7 +38,10 @@ public class newProduct {
 	private String desc;
 	private double price;
 	private int quantity;
-
+	
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	JFrame addProduct(){
 		frmNewProduct = new JFrame();
 		frmNewProduct.getContentPane().setFont(new Font("Arial", Font.PLAIN, 12));
@@ -187,9 +190,6 @@ public class newProduct {
 		return frmNewProduct;
 	}
 	
-	/**
-	 * @wbp.parser.entryPoint
-	 */
 	private JPanel supplierForm() {
 		JPanel panel = new JPanel();
 	

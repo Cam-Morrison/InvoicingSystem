@@ -2,10 +2,17 @@ package cam.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.sql.Date;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -13,10 +20,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import cam.business.logic.DataManager;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
 import javax.swing.JTable;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.CompoundBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+
+import com.github.lgooddatepicker.components.DatePicker;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.Toolkit;
 import javax.swing.JLabel;
@@ -24,7 +39,6 @@ import javax.swing.SwingConstants;
 import java.awt.ComponentOrientation;
 import java.awt.Cursor;
 import java.awt.Dimension;
-
 import javax.swing.UIManager;
 
 public class dashboard extends JFrame {
@@ -45,6 +59,7 @@ public class dashboard extends JFrame {
 	/**
 	 * @wbp.parser.entryPoint
 	 */
+	@SuppressWarnings("serial")
 	public void createDashboard() {
 		
 		mainFrame = new JFrame();
@@ -70,8 +85,38 @@ public class dashboard extends JFrame {
 	    eastPanel.setBackground(Color.WHITE);
 	    
 	    scrollPane = new JScrollPane();
+	    
 	    //Creation of JTable
-	    table = new JTable();
+	    table = new JTable() {
+	    	 public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
+
+	        	Component comp = super.prepareRenderer(renderer, row, col);
+	        	
+	        	 if (table.getColumnName(col).compareToIgnoreCase("Quantity") == 0) {
+            		int fieldValue = 0;
+            		
+	            	try {
+	            		fieldValue = (int) table.getModel().getValueAt(row, 4);
+	            	}catch(Exception e) {
+	            		return comp;
+	            	}
+	            	if(fieldValue <= 5 && fieldValue > 0) {
+	                    comp.setBackground(new Color(255,255,0));
+	                    comp.setForeground(Color.black);
+	                } else if(fieldValue > 5) {
+	                	comp.setBackground(new Color(124,252,0));
+	                	comp.setForeground(Color.black);
+	                } else if(fieldValue == 0){
+	                    comp.setBackground(new Color(139,0,0));
+	                    comp.setForeground(Color.white);
+	                }
+	            }else {
+	                comp.setForeground(Color.black);
+	                comp.setBackground(Color.white);
+	            }
+	            return comp;
+	    	 }
+	    };
 	    table.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
 	    table.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 	    table.setEnabled(false);
@@ -242,8 +287,65 @@ public class dashboard extends JFrame {
 		reportBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		reportBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				closeFrames();
+				Object options[] = {"Order before date", "Low inventory products"};
+		        Object selection = JOptionPane.showInputDialog(mainFrame, "Choose", "Menu", JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+		        if(selection != null) {
+			        if(selection.equals("Order before date")) {
+						//Date entry
+						DatePicker jd = new DatePicker();
+						String message ="Search for all orders placed before:\n";
+						Object[] params = {message,jd};
+						JOptionPane.showConfirmDialog(mainFrame,params, "Filter by date", JOptionPane.PLAIN_MESSAGE);
+						java.sql.Date date = null;	
+		
+				    	try {
+				    		date = java.sql.Date.valueOf(jd.getDate());
+				    	} catch(Exception ex){};
+				    	
+						try {
+			        		eastPanel.remove(invoice);
+			        	}catch(Exception ex){};	
+	
+				    	if(date != null) {
+					        if(data.ordersBeforeDate(date) == true) {
+								table.setModel(data.generateTable("Date", 0));
+								title.setText("Transactions before " + date);
+					        }else {
+					        	JOptionPane.showMessageDialog(mainFrame, "There are no orders before selected date.");
+					        }
+				    	}
+			        } else {
+						table.setModel(data.generateTable("LowStock", 0));
+						title.setText("Low inventory products");
+			        }
+	        		eastPanel.add(title);
+	        		eastPanel.add(scrollPane);	
+		        
+	        		GroupLayout gl_eastPanel = new GroupLayout(eastPanel);
+	        		gl_eastPanel.setHorizontalGroup(
+	        			gl_eastPanel.createParallelGroup(Alignment.TRAILING)
+	        				.addGroup(gl_eastPanel.createSequentialGroup()
+	        					.addGroup(gl_eastPanel.createParallelGroup(Alignment.TRAILING)
+	        						.addComponent(title, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
+	        						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
+	        					.addContainerGap())
+	        		);
+	        		gl_eastPanel.setVerticalGroup(
+	        			gl_eastPanel.createParallelGroup(Alignment.LEADING)
+	        				.addGroup(gl_eastPanel.createSequentialGroup()
+	        					.addContainerGap()
+	        					.addComponent(title)
+	        					.addPreferredGap(ComponentPlacement.RELATED)
+	        					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE))
+	        		);
+	        		eastPanel.setLayout(gl_eastPanel);
+	       
+	        		mainFrame.revalidate();
+	        		mainFrame.repaint();
+		        }
 		}});
+		
 		reportBtn.setBackground(Color.WHITE);
 		GroupLayout groupLayout = new GroupLayout(mainFrame.getContentPane());
 		groupLayout.setHorizontalGroup(
@@ -282,33 +384,73 @@ public class dashboard extends JFrame {
 					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE))
 		);
 		eastPanel.setLayout(gl_eastPanel);
+		
+		JButton printBtn = new JButton("Print page");
+		printBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				  PrinterJob pj = PrinterJob.getPrinterJob();
+				  PageFormat pf = pj.defaultPage();
+				  pj.setJobName(" Print Component ");
+				  
+				  pf.setOrientation(PageFormat.LANDSCAPE);
+				  pj.setPrintable (new Printable() {    
+					  
+				    public int print(Graphics pg, PageFormat pf, int pageNum){
+				      if (pageNum > 0){
+				    	  return Printable.NO_SUCH_PAGE;
+				      }
+				      Graphics2D g2 = (Graphics2D) pg;
+				      g2.translate(pf.getImageableX(), pf.getImageableY());
+				      eastPanel.paint(g2);
+				      return Printable.PAGE_EXISTS;
+				    }
+				  }, pf);
+				  if (pj.printDialog() == false)
+				  return;
+
+				  try {
+				        pj.print();
+				  } catch (PrinterException ex) {
+				        JOptionPane.showMessageDialog(mainFrame, "Cannot print page.");
+				  }
+			}
+		});
+		printBtn.setIgnoreRepaint(true);
+		printBtn.setFont(new Font("Arial", Font.BOLD, 16));
+		printBtn.setFocusable(false);
+		printBtn.setFocusTraversalKeysEnabled(false);
+		printBtn.setFocusPainted(false);
+		printBtn.setBackground(Color.WHITE);
 		GroupLayout gl_westPanel = new GroupLayout(westPanel);
 		gl_westPanel.setHorizontalGroup(
-			gl_westPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_westPanel.createSequentialGroup()
-					.addContainerGap(43, Short.MAX_VALUE)
+			gl_westPanel.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_westPanel.createSequentialGroup()
+					.addGap(43)
 					.addGroup(gl_westPanel.createParallelGroup(Alignment.TRAILING)
-						.addComponent(reportBtn, GroupLayout.PREFERRED_SIZE, 153, GroupLayout.PREFERRED_SIZE)
-						.addComponent(updateBtn, GroupLayout.PREFERRED_SIZE, 153, GroupLayout.PREFERRED_SIZE)
-						.addComponent(productBtn, GroupLayout.PREFERRED_SIZE, 153, GroupLayout.PREFERRED_SIZE)
-						.addComponent(orderBtn, GroupLayout.PREFERRED_SIZE, 153, GroupLayout.PREFERRED_SIZE)
-						.addComponent(displayBtn, GroupLayout.PREFERRED_SIZE, 153, GroupLayout.PREFERRED_SIZE))
+						.addComponent(printBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+						.addComponent(reportBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+						.addComponent(updateBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+						.addComponent(productBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+						.addComponent(orderBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+						.addComponent(displayBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE))
 					.addGap(38))
 		);
 		gl_westPanel.setVerticalGroup(
 			gl_westPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_westPanel.createSequentialGroup()
 					.addGap(20)
-					.addComponent(displayBtn, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)
-					.addGap(34)
-					.addComponent(orderBtn, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)
-					.addGap(32)
-					.addComponent(productBtn, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)
-					.addGap(32)
-					.addComponent(updateBtn, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)
-					.addGap(28)
-					.addComponent(reportBtn, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(27, Short.MAX_VALUE))
+					.addComponent(displayBtn, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
+					.addGap(18)
+					.addComponent(orderBtn, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+					.addGap(18)
+					.addComponent(productBtn, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
+					.addGap(18)
+					.addComponent(updateBtn, GroupLayout.PREFERRED_SIZE, 51, GroupLayout.PREFERRED_SIZE)
+					.addGap(18)
+					.addComponent(reportBtn, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
+					.addGap(18)
+					.addComponent(printBtn, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(55, Short.MAX_VALUE))
 		);
 		westPanel.setLayout(gl_westPanel);
 		mainFrame.getContentPane().setLayout(groupLayout);

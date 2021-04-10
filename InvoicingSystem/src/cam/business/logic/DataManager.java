@@ -5,6 +5,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,6 +31,7 @@ public class DataManager {
 	private static ArrayList<Suppliers> supplierList = new ArrayList<Suppliers>();
 	private static  ArrayList<Products> productList = new ArrayList<Products>();
 	private static ArrayList<Staff> staffList = new ArrayList<Staff>();
+	private Date selectedDate;
 	private String updateSQL;
 	private static int currentStaffMember;
 	
@@ -81,6 +83,17 @@ public class DataManager {
 	public boolean doesProductExist(int id) {
 		for(Products p : productList) {
 			if(p.getProductId() == id) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//Are there any orders before date
+	public boolean ordersBeforeDate(Date date) {
+		for(Transactions o : orderList) {
+			if(o.getOrderDate().before(date)) {
+				this.selectedDate = date;
 				return true;
 			}
 		}
@@ -540,7 +553,26 @@ public class DataManager {
 					tableModel.addRow(new Object[] { productList.get(it.getProductId() - 1).getName(), it.getPurchaseQuantity(), 
 							productList.get(it.getProductId() - 1).getDescription(), "£" + (it.getPurchasePrice() * it.getPurchaseQuantity()), it.getDiscount() + "%"});
 				}
-				break;			
+				break;		
+			case "Date": //Transactions before date
+				Object transactionColumns[] = { "ID", "Date", "Customer ID", "Staff ID", "Shipping ID", "Cost"};
+				tableModel = new DefaultTableModel(transactionColumns, 0);
+					for(Transactions t : orderList) {
+						if(t.getOrderDate().before(this.selectedDate)) {
+							tableModel.addRow(new Object[] { t.getOrderId(), t.getOrderDate(),
+							t.getCustomerId(), t.getStaffId(), t.getShippingId(), t.getTotalCost()});
+					} 
+				}
+				break;
+			case "LowStock": //Products that are low in stock
+				Object LowStockColumns[] = { "ID", "Name", "Price", "Description", "Quantity", "Supplier", "Status"};
+				tableModel = new DefaultTableModel(LowStockColumns, 0);
+					for(Products p : productList) {
+						if(p.getStockQuantity() <= 5) {
+						tableModel.addRow(new Object[] { p.getProductId(), p.getName(), p.getPrice(),
+								p.getDescription(), p.getStockQuantity(), p.getSupplierId(), p.getAvaliable()});
+					}
+				}
 		}
 		return tableModel;
 	}

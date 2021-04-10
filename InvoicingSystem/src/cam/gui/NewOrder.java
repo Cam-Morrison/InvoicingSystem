@@ -46,7 +46,10 @@ public class NewOrder {
 	private ArrayList<Integer> quantities = new ArrayList<Integer>();
 	private ArrayList<Double> discounts = new ArrayList<Double>();
 	private JTextField discountField;
-
+	
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	public JFrame clientInfoForm(){
 		JFrame frmCustomerDetails = new JFrame();
 		frmCustomerDetails.setResizable(false);
@@ -65,7 +68,7 @@ public class NewOrder {
 		foreNameLbl.setForeground(new Color(11, 26, 106));
 		
 		forenameField = new JTextField();
-		forenameField.setHorizontalAlignment(SwingConstants.CENTER);
+		forenameField.setHorizontalAlignment(SwingConstants.LEFT);
 		forenameField.setFont(new Font("Arial", Font.PLAIN, 16));
 		forenameField.setColumns(10);
 		
@@ -80,17 +83,17 @@ public class NewOrder {
 		emailLbl.setForeground(new Color(11, 26, 106));
 		
 		emailField = new JTextField();
-		emailField.setHorizontalAlignment(SwingConstants.CENTER);
+		emailField.setHorizontalAlignment(SwingConstants.LEFT);
 		emailField.setFont(new Font("Arial", Font.PLAIN, 16));
 		emailField.setColumns(10);
 		
 		surnameField = new JTextField();
-		surnameField.setHorizontalAlignment(SwingConstants.CENTER);
+		surnameField.setHorizontalAlignment(SwingConstants.LEFT);
 		surnameField.setFont(new Font("Arial", Font.PLAIN, 16));
 		surnameField.setColumns(10);
 	
 		streetField = new JTextField();
-		streetField.setHorizontalAlignment(SwingConstants.CENTER);
+		streetField.setHorizontalAlignment(SwingConstants.LEFT);
 		streetField.setFont(new Font("Arial", Font.PLAIN, 16));
 		streetField.setColumns(10);
 		
@@ -259,9 +262,6 @@ public class NewOrder {
 		return frmCustomerDetails;
 	}
 	
-	/**
-	 * @wbp.parser.entryPoint
-	 */
 	private void productOrderPage() {
 		JFrame frmProduct = new JFrame();
 		frmProduct.setTitle("Product");
@@ -308,7 +308,7 @@ public class NewOrder {
 				frmProduct.dispose();
 				String[] shipping = {"1st Class","2nd Class","UK standard delivery"};
 				String shippingMethod = (String) JOptionPane.showInputDialog(null, "Please select a shipping method", 
-						"Shipping options", JOptionPane.QUESTION_MESSAGE, null, shipping, shipping[1]);
+						"Shipping options", JOptionPane.QUESTION_MESSAGE, null, shipping, shipping[2]);
 				if(shippingMethod == null) {
 					JOptionPane.showMessageDialog(null, "Your order has been cancelled.");
 				}else {
