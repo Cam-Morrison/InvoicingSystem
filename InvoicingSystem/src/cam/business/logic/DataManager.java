@@ -69,7 +69,6 @@ public class DataManager {
 				if(hash.toString().equals(staffList.get(staffID - 1).getPasswordHash())) {
 					loadDatabase(2);
 					currentStaffMember  = staffID;
-					System.out.println(DataManager.currentStaffMember);
 				    return true;
 				}
 				//hash 40bd001563085fc35165329ea1ff5c5ecbdbbeef, pass 123, staff id 1
@@ -150,11 +149,19 @@ public class DataManager {
 	public boolean updateProduct(int id, int quantity, String desc, double price) {
 		if(doesProductExist(id) == true) {
 			//Update product class
-			productList.get(id - 1).setStockQuantity(quantity);
-			productList.get(id - 1).setPrice(price);
-			productList.get(id - 1).setDesc(desc);
+			if(quantity <= 20 && quantity >= 0) {
+				productList.get(id - 1).setStockQuantity(quantity);
+			}
+			if(desc.equals("") == false) {
+				productList.get(id - 1).setDesc(desc);
+			}
+			if(price > 0.01) {
+				productList.get(id - 1).setPrice(price);
+			}
 			//Save to storage
-			this.updateSQL = "UPDATE product SET quantity = " + quantity + ", description = '" + desc + "', price = " + price + " WHERE product_id = " + id + ";"; 
+			this.updateSQL = "UPDATE product SET quantity = " + productList.get(id - 1).getStockQuantity() + ", description = '" 
+					+ productList.get(id - 1).getDescription() + "', price = " + productList.get(id - 1).getPrice() 
+					+ " WHERE product_id = " + productList.get(id - 1).getProductId()  + ";"; 
 			storeDatabase(2, id);
 			return true;
 		}
@@ -289,7 +296,6 @@ public class DataManager {
 	
 	//Stores newly entered information to database
 	private boolean storeDatabase(int option, int ID) {
-		String driver = "com.mysql.cj.jdbc.Driver";
 		String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
 		String user = "root";
 		String password = "root";
@@ -370,7 +376,6 @@ public class DataManager {
 	//Loads any previous information from database
 	private boolean loadDatabase(int option) throws SQLException {
 		//Database connection information
-		String driver = "com.mysql.cj.jdbc.Driver";
 		String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
 		String user = "root";
 		String password = "root";
@@ -499,7 +504,7 @@ public class DataManager {
 				tableModel = new DefaultTableModel(orderColumns, 0);
 				for(Transactions t : orderList) {
 						tableModel.addRow(new Object[] { t.getOrderId(), t.getOrderDate(),
-						t.getCustomerId(), t.getStaffId(), t.getShippingId(), t.getTotalCost()});
+						t.getCustomerId(), t.getStaffId(), t.getShippingId(), "£" + t.getTotalCost()});
 				} 
 				break;
 			case "Customers": //Clients users table
@@ -520,7 +525,7 @@ public class DataManager {
 				Object productColumns[] = { "ID", "Name", "Price", "Description", "Quantity", "Supplier", "Status"};
 				tableModel = new DefaultTableModel(productColumns, 0);
 				for(Products p : productList) {
-					tableModel.addRow(new Object[] { p.getProductId(), p.getName(), p.getPrice(),
+					tableModel.addRow(new Object[] { p.getProductId(), p.getName(), "£" + p.getPrice(),
 							p.getDescription(), p.getStockQuantity(), p.getSupplierId(), p.getAvaliable()});
 				}
 				break;
@@ -569,7 +574,7 @@ public class DataManager {
 				tableModel = new DefaultTableModel(LowStockColumns, 0);
 					for(Products p : productList) {
 						if(p.getStockQuantity() <= 5) {
-						tableModel.addRow(new Object[] { p.getProductId(), p.getName(), p.getPrice(),
+						tableModel.addRow(new Object[] { p.getProductId(), p.getName(), "£" + p.getPrice(),
 								p.getDescription(), p.getStockQuantity(), p.getSupplierId(), p.getAvaliable()});
 					}
 				}

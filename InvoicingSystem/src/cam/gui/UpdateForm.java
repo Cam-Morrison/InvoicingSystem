@@ -16,12 +16,17 @@ import java.awt.Color;
 import java.awt.Cursor;
 import javax.swing.border.MatteBorder;
 
+import com.mysql.cj.xdevapi.Table;
+
 import cam.business.logic.DataManager;
 
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
+import javax.swing.UIManager;
 
 public class UpdateForm {
 	private JTextField idField;
@@ -35,11 +40,19 @@ public class UpdateForm {
 	 */
 	public JFrame generateForm(){
 		JFrame frmUpdateProduct = new JFrame();
+		frmUpdateProduct.getContentPane().setBackground(new Color(255, 255, 255));
 		frmUpdateProduct.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmUpdateProduct.getContentPane().setFont(new Font("Arial", Font.PLAIN, 12));
 		frmUpdateProduct.setTitle("Update product");
 		frmUpdateProduct.setIconImage(Toolkit.getDefaultToolkit().getImage(UpdateForm.class.getResource("/cam/gui/icon.png")));
 		frmUpdateProduct.setType(Type.POPUP);
+		frmUpdateProduct.addWindowListener(new WindowAdapter(){
+            @Override
+            public void windowClosing(WindowEvent e){
+            	frmUpdateProduct.dispose();
+            	dashboard.updateTable("Products");    	
+            }
+        });
 		
 		JLabel productIDtxt = new JLabel("Please enter product ID");
 		productIDtxt.setForeground(new Color(11, 26, 106));
@@ -122,29 +135,41 @@ public class UpdateForm {
 					if(data.doesProductExist(id) == false) {
 						idField.setText("Incorrect, that is not a valid product ID.");
 					} else {
-						if(quantityField.getText().isEmpty() || descField.getText().isEmpty() || priceField.getText().isEmpty()) {
-							warningLbl.setText("Please enter missing values.");
-						}else {
-							if(descField.getText().length() < 10 || descField.getText().length() > 250) {
-								descField.setText("Description must be between 10 - 250 characters.");
-								warningLbl.setText("Description is not valid.");
-							}else {
-								int quantity = Integer.parseInt(quantityField.getText());
-								if(quantity < 0 || quantity > 20) {
+						int quantity = 21;
+						String desc = "";
+						double price = 0.00;
+						if(!descField.getText().isBlank() || !quantityField.getText().isBlank() || !priceField.getText().isBlank()) {
+							if(!descField.getText().isBlank()) {
+								if(descField.getText().length() < 10 || descField.getText().length() > 250) {
+									descField.setText("Description must be between 10 - 250 characters.");
+									warningLbl.setText("Description is not valid.");
+								}else {
+									desc = descField.getText();
+								}
+							}
+						
+							if(!quantityField.getText().isBlank()) {
+								int fieldQuantity = Integer.parseInt(quantityField.getText());
+								if(fieldQuantity < 0 || fieldQuantity > 20) {
 									quantityField.setText("Must be 0-20!");
 									warningLbl.setText("Quantity must be 0-20");
-								} else {
-									double price = Double.parseDouble(priceField.getText());
-									if(data.updateProduct(id, quantity, descField.getText(), price)) {
-										frmUpdateProduct.dispose();
-										JOptionPane.showMessageDialog(null, "Product " + id + " has been updated.");
-									} else { 
-										warningLbl.setText("There was an issue, please restart program.");
-									}
-									
-								}		
+								}else {
+									quantity = fieldQuantity;
+								}
+							} 
+							if(!priceField.getText().isBlank()) {
+								price = Double.parseDouble(priceField.getText());
 							}
-
+										
+							if(data.updateProduct(id, quantity, desc, price)) {
+								frmUpdateProduct.dispose();			
+								JOptionPane.showMessageDialog(null, "Product " + id + " has been updated.");
+								frmUpdateProduct.dispatchEvent(new WindowEvent(frmUpdateProduct, WindowEvent.WINDOW_CLOSING));
+							} else { 
+								warningLbl.setText("There was an issue, please restart program.");
+							}
+						}else {
+							warningLbl.setText("Please update one or more of the fields.");
 						}
 					}
 				}catch(Exception err) {
@@ -164,7 +189,7 @@ public class UpdateForm {
 						idField.setText("Incorrect, that is not a valid product ID.");
 					}else {
 						data.removeProduct(input);
-						frmUpdateProduct.dispose();		
+						frmUpdateProduct.dispatchEvent(new WindowEvent(frmUpdateProduct, WindowEvent.WINDOW_CLOSING));
 					}
 				}catch(Exception err) {
 					idField.setText("Incorrect, please enter a number!");

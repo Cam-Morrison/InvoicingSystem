@@ -44,6 +44,7 @@ public class newProduct {
 	 */
 	JFrame addProduct(){
 		frmNewProduct = new JFrame();
+		frmNewProduct.getContentPane().setBackground(new Color(255, 255, 255));
 		frmNewProduct.getContentPane().setFont(new Font("Arial", Font.PLAIN, 12));
 		frmNewProduct.setFont(new Font("Arial", Font.PLAIN, 12));
 		frmNewProduct.setIconImage(Toolkit.getDefaultToolkit().getImage(newProduct.class.getResource("/cam/gui/icon.png")));

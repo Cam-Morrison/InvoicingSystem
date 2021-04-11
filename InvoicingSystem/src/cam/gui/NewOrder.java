@@ -47,15 +47,14 @@ public class NewOrder {
 	private ArrayList<Double> discounts = new ArrayList<Double>();
 	private JTextField discountField;
 	
-	/**
-	 * @wbp.parser.entryPoint
-	 */
+
 	public JFrame clientInfoForm(){
 		JFrame frmCustomerDetails = new JFrame();
 		frmCustomerDetails.setResizable(false);
 		frmCustomerDetails.setTitle("Enter customer details");
 		frmCustomerDetails.setIconImage(Toolkit.getDefaultToolkit().getImage(NewOrder.class.getResource("/cam/gui/icon.png")));
 		JPanel panel = new JPanel();
+		panel.setBackground(new Color(255, 255, 255));
 		
 		JLabel warningLbl = new JLabel("");
 		warningLbl.setForeground(Color.RED);
@@ -261,9 +260,12 @@ public class NewOrder {
 		frmCustomerDetails.getContentPane().add(panel);
 		return frmCustomerDetails;
 	}
-	
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	private void productOrderPage() {
 		JFrame frmProduct = new JFrame();
+		frmProduct.getContentPane().setBackground(new Color(255, 255, 255));
 		frmProduct.setTitle("Product");
 		frmProduct.setResizable(false);
 		frmProduct.setIconImage(Toolkit.getDefaultToolkit().getImage(NewOrder.class.getResource("/cam/gui/icon.png")));

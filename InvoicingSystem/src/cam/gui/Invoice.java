@@ -162,7 +162,8 @@ public class Invoice {
 		orderTable.setFillsViewportHeight(true);
 		orderTable.setModel(data.generateTable("Items", id));
 		orderTable.getTableHeader().setOpaque(false);
-		orderTable.getTableHeader().setBackground(new Color(220,220,220));
+		orderTable.getTableHeader().setBackground(new Color(11, 26, 106));
+		orderTable.getTableHeader().setForeground(Color.white);
 		orderTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
 		orderScroll.setViewportView(orderTable);
 		
@@ -173,7 +174,8 @@ public class Invoice {
 		custTable.setModel(data.generateTable("Customers",1));
 		custTable.setFont(new Font("Arial", Font.PLAIN, 12));
 		custTable.getTableHeader().setOpaque(false);
-		custTable.getTableHeader().setBackground(new Color(220,220,220));
+		custTable.getTableHeader().setBackground(new Color(11, 26, 106));
+		custTable.getTableHeader().setForeground(Color.white);
 		custTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
 		custScroll.setViewportView(custTable);
 		panel.setLayout(gl_panel);

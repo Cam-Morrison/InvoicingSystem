@@ -46,11 +46,13 @@ public class Driver {
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Driver.class.getResource("/cam/gui/icon.png")));
 		frame.setBackground(Color.WHITE);
 		JPanel panel = new JPanel();
+		panel.setBackground(new Color(255, 255, 255));
 		panel.setLayout(null);
 		frame.setTitle("Invoicing system");
 
 		JLabel userLabel = new JLabel("Staff ID");
-		userLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+		userLabel.setFont(new Font("Arial", Font.BOLD, 16));
+		userLabel.setForeground(new Color(11, 26, 106));
 		userLabel.setBounds(10, 10, 80, 25);
 		panel.add(userLabel);
 
@@ -59,8 +61,9 @@ public class Driver {
 		panel.add(userText);
 
 		JLabel passwordLabel = new JLabel("Password");
-		passwordLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+		passwordLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		passwordLabel.setBounds(10, 40, 80, 25);
+		passwordLabel.setForeground(new Color(11, 26, 106));
 		panel.add(passwordLabel);
 		
 		JPasswordField passwordText = new JPasswordField();

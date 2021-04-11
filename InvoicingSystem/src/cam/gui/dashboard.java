@@ -28,6 +28,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.CompoundBorder;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
@@ -40,25 +41,24 @@ import java.awt.ComponentOrientation;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import javax.swing.UIManager;
+import java.awt.Canvas;
 
 public class dashboard extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	public JPanel eastPanel;
-	private JTable table;
-	private JLabel title;
-	private JFrame mainFrame;
-	private JScrollPane scrollPane;
-	private JFrame productForm;
-	private JFrame updateForm;
-	private JFrame orderForm;
-	private JPanel invoice;
+	private static JFrame mainFrame;
+	private static JTable table;
+	private static JPanel eastPanel;
+	private static JLabel title;
+	private static JScrollPane scrollPane;
+	private static JFrame productForm;
+	private static JFrame updateForm;
+	private static JFrame orderForm;
+	private static JPanel invoice;
+	private static JPanel overview;
 	private Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-	private DataManager data = new DataManager();
+	private static DataManager data = new DataManager();
 
-	/**
-	 * @wbp.parser.entryPoint
-	 */
 	@SuppressWarnings("serial")
 	public void createDashboard() {
 		
@@ -79,11 +79,9 @@ public class dashboard extends JFrame {
 		mainFrame.setTitle("Invoicing system");
 		mainFrame.setBounds(100, 100, 739, 487);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
 	    eastPanel = new JPanel();
 	    eastPanel.setBorder(new CompoundBorder());
 	    eastPanel.setBackground(Color.WHITE);
-	    
 	    scrollPane = new JScrollPane();
 	    
 	    //Creation of JTable
@@ -110,6 +108,20 @@ public class dashboard extends JFrame {
 	                    comp.setBackground(new Color(139,0,0));
 	                    comp.setForeground(Color.white);
 	                }
+	        	 }else if(table.getColumnName(col).compareToIgnoreCase("Status") == 0) {
+	        		int status = 1;
+	            	try {
+	            		status = (int) table.getModel().getValueAt(row, 6);
+	            	}catch(Exception e) {
+	            		return comp;
+	            	}
+	        		if(status > 0) {
+	                    comp.setBackground(new Color(124,252,0));
+	                    comp.setForeground(Color.black);
+	                } if(status == 0) {
+	                    comp.setBackground(new Color(139,0,0));
+	                    comp.setForeground(Color.white);
+	                } 
 	            }else {
 	                comp.setForeground(Color.black);
 	                comp.setBackground(Color.white);
@@ -117,14 +129,15 @@ public class dashboard extends JFrame {
 	            return comp;
 	    	 }
 	    };
+	    table.setEnabled(false);
 	    table.setBorder(UIManager.getBorder("Table.scrollPaneBorder"));
 	    table.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-	    table.setEnabled(false);
 	    table.setFont(new Font("Arial", Font.PLAIN, 12));
 	    table.setModel(data.generateTable("", 0));
 	    table.setFillsViewportHeight(true);
 	    table.getTableHeader().setOpaque(false);
-	    table.getTableHeader().setBackground(new Color(220,220,220));
+	    table.getTableHeader().setBackground(new Color(11, 26, 106));
+	    table.getTableHeader().setForeground(Color.white);
 	    table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
 	    scrollPane.setViewportView(table);
 
@@ -141,6 +154,7 @@ public class dashboard extends JFrame {
 		displayBtn.setFocusable(false);
 		displayBtn.setFocusPainted(false);
 		displayBtn.setFont(new Font("Arial", Font.BOLD, 16));
+		displayBtn.setForeground(new Color(11, 26, 106));
 		
 		displayBtn.addActionListener(new ActionListener() {
 			@Override
@@ -159,6 +173,8 @@ public class dashboard extends JFrame {
 			        		int ans = 0;
 			        		do {
 				        		try {
+									table.setModel(data.generateTable("Transactions", 0));
+									title.setText("Transactions");		
 					        		ans = Integer.parseInt(JOptionPane.showInputDialog(mainFrame,"Please enter an order ID to display invoice.",JOptionPane.INFORMATION_MESSAGE));
 					        		if(data.isOrderID(ans) == true) {
 					        			valid = true;
@@ -172,6 +188,7 @@ public class dashboard extends JFrame {
 			        		}while(valid != true);
 			        		
 				        	if(valid == true) {
+				        		restoreTable();
 				        		Invoice inv = new Invoice();
 				        		eastPanel.remove(scrollPane);
 				        		eastPanel.remove(title);
@@ -184,37 +201,14 @@ public class dashboard extends JFrame {
 			        	}else {
 							table.setModel(data.generateTable(selectionString, 0));
 							title.setText(selectionString);		
-			        		eastPanel.add(title);
-			        		eastPanel.add(scrollPane);	
-
-			        		GroupLayout gl_eastPanel = new GroupLayout(eastPanel);
-			        		gl_eastPanel.setHorizontalGroup(
-			        			gl_eastPanel.createParallelGroup(Alignment.TRAILING)
-			        				.addGroup(gl_eastPanel.createSequentialGroup()
-			        					.addGroup(gl_eastPanel.createParallelGroup(Alignment.TRAILING)
-			        						.addComponent(title, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
-			        						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
-			        					.addContainerGap())
-			        		);
-			        		gl_eastPanel.setVerticalGroup(
-			        			gl_eastPanel.createParallelGroup(Alignment.LEADING)
-			        				.addGroup(gl_eastPanel.createSequentialGroup()
-			        					.addContainerGap()
-			        					.addComponent(title)
-			        					.addPreferredGap(ComponentPlacement.RELATED)
-			        					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE))
-			        		);
-			        		eastPanel.setLayout(gl_eastPanel);
+							restoreTable();
 			        	}
-		        		mainFrame.revalidate();
-		        		mainFrame.repaint();
-			        }
+		        	}
 		        }
 			}
 		});
 		displayBtn.setBackground(Color.WHITE);
 		
-		//Button to display bookings
 		JButton orderBtn = new JButton("Create order");
 		orderBtn.setIgnoreRepaint(true);
 		orderBtn.setFocusable(false);
@@ -222,9 +216,10 @@ public class dashboard extends JFrame {
 		orderBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		orderBtn.setFocusPainted(false);
 		orderBtn.setFont(new Font("Arial", Font.BOLD, 16));
+		orderBtn.setForeground(new Color(11, 26, 106));
 		orderBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				closeFrames();
+				updateTable("Products");
 				NewOrder orderPage = new NewOrder();
 				orderForm = orderPage.clientInfoForm();
 				orderForm.setVisible(true);
@@ -235,7 +230,6 @@ public class dashboard extends JFrame {
 		});
 		orderBtn.setBackground(Color.WHITE);
 		
-		//Button to create bookings
 		JButton productBtn = new JButton("New product");
 		productBtn.setIgnoreRepaint(true);
 		productBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -243,9 +237,10 @@ public class dashboard extends JFrame {
 		productBtn.setFocusable(false);
 		productBtn.setFocusPainted(false);
 		productBtn.setFont(new Font("Arial", Font.BOLD, 16));
+		productBtn.setForeground(new Color(11, 26, 106));
 		productBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				closeFrames();
+				updateTable("Suppliers");
 				newProduct productPage = new newProduct();
 				productForm = productPage.addProduct();
 				productForm.setVisible(true);
@@ -262,11 +257,12 @@ public class dashboard extends JFrame {
 		updateBtn.setFocusable(false);
 		updateBtn.setFocusTraversalKeysEnabled(false);
 		updateBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		updateBtn.setForeground(new Color(11, 26, 106));
 		updateBtn.setFocusPainted(false);
 		updateBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		updateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					closeFrames();
+					updateTable("Products");
 					UpdateForm up = new UpdateForm();
 					updateForm = up.generateForm();
 					updateForm.setVisible(true);
@@ -288,10 +284,24 @@ public class dashboard extends JFrame {
 		reportBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				closeFrames();
-				Object options[] = {"Order before date", "Low inventory products"};
+				Object options[] = {"Operation overview", "Order before date", "Low inventory products"};
 		        Object selection = JOptionPane.showInputDialog(mainFrame, "Choose", "Menu", JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		        if(selection != null) {
-			        if(selection.equals("Order before date")) {
+		        	try {
+		        		eastPanel.remove(invoice);
+		        	}catch(Exception ex){};	
+		        	if(selection.equals("Operation overview")) {
+		        		mainFrame.setResizable(false);
+		        		eastPanel.remove(scrollPane);
+		        		eastPanel.remove(title);
+		        		eastPanel.setLayout(new BorderLayout());
+		        		overview = financialOverview();
+		        		eastPanel.add(overview, BorderLayout.CENTER);
+		        		mainFrame.setSize((int)size.getWidth()/2, (int)size.getHeight()/2);
+		        		mainFrame.setLocationRelativeTo(null);
+		        		mainFrame.revalidate();
+		        		mainFrame.repaint();
+		        	} else if(selection.equals("Order before date")) {
 						//Date entry
 						DatePicker jd = new DatePicker();
 						String message ="Search for all orders placed before:\n";
@@ -311,6 +321,7 @@ public class dashboard extends JFrame {
 					        if(data.ordersBeforeDate(date) == true) {
 								table.setModel(data.generateTable("Date", 0));
 								title.setText("Transactions before " + date);
+								restoreTable();
 					        }else {
 					        	JOptionPane.showMessageDialog(mainFrame, "There are no orders before selected date.");
 					        }
@@ -318,35 +329,13 @@ public class dashboard extends JFrame {
 			        } else {
 						table.setModel(data.generateTable("LowStock", 0));
 						title.setText("Low inventory products");
+						restoreTable();
 			        }
-	        		eastPanel.add(title);
-	        		eastPanel.add(scrollPane);	
-		        
-	        		GroupLayout gl_eastPanel = new GroupLayout(eastPanel);
-	        		gl_eastPanel.setHorizontalGroup(
-	        			gl_eastPanel.createParallelGroup(Alignment.TRAILING)
-	        				.addGroup(gl_eastPanel.createSequentialGroup()
-	        					.addGroup(gl_eastPanel.createParallelGroup(Alignment.TRAILING)
-	        						.addComponent(title, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
-	        						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
-	        					.addContainerGap())
-	        		);
-	        		gl_eastPanel.setVerticalGroup(
-	        			gl_eastPanel.createParallelGroup(Alignment.LEADING)
-	        				.addGroup(gl_eastPanel.createSequentialGroup()
-	        					.addContainerGap()
-	        					.addComponent(title)
-	        					.addPreferredGap(ComponentPlacement.RELATED)
-	        					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE))
-	        		);
-	        		eastPanel.setLayout(gl_eastPanel);
-	       
-	        		mainFrame.revalidate();
-	        		mainFrame.repaint();
 		        }
 		}});
 		
 		reportBtn.setBackground(Color.WHITE);
+		reportBtn.setForeground(new Color(11, 26, 106));
 		GroupLayout groupLayout = new GroupLayout(mainFrame.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -386,6 +375,8 @@ public class dashboard extends JFrame {
 		eastPanel.setLayout(gl_eastPanel);
 		
 		JButton printBtn = new JButton("Print page");
+		printBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		printBtn.setForeground(new Color(11, 26, 106));
 		printBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				  PrinterJob pj = PrinterJob.getPrinterJob();
@@ -424,15 +415,15 @@ public class dashboard extends JFrame {
 		GroupLayout gl_westPanel = new GroupLayout(westPanel);
 		gl_westPanel.setHorizontalGroup(
 			gl_westPanel.createParallelGroup(Alignment.TRAILING)
-				.addGroup(gl_westPanel.createSequentialGroup()
+				.addGroup(Alignment.LEADING, gl_westPanel.createSequentialGroup()
 					.addGap(43)
-					.addGroup(gl_westPanel.createParallelGroup(Alignment.TRAILING)
-						.addComponent(printBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
-						.addComponent(reportBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
-						.addComponent(updateBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
-						.addComponent(productBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
-						.addComponent(orderBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
-						.addComponent(displayBtn, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE))
+					.addGroup(gl_westPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(updateBtn, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+						.addComponent(printBtn, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+						.addComponent(reportBtn, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+						.addComponent(productBtn, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+						.addComponent(orderBtn, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
+						.addComponent(displayBtn, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE))
 					.addGap(38))
 		);
 		gl_westPanel.setVerticalGroup(
@@ -461,16 +452,176 @@ public class dashboard extends JFrame {
 		mainFrame.setVisible(true);
 	}
 	
-	//Closes any extra frames that could be open before creating another
-	private void closeFrames() {
+	private static void restoreTable() {
+		try {
+			eastPanel.remove(overview);
+		}catch(Exception e) {};
+		try {
+			eastPanel.remove(invoice);
+		}catch(Exception e) {};
+		mainFrame.setResizable(true);
+		GroupLayout gl_eastPanel = new GroupLayout(eastPanel);
+		gl_eastPanel.setHorizontalGroup(
+			gl_eastPanel.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_eastPanel.createSequentialGroup()
+					.addGroup(gl_eastPanel.createParallelGroup(Alignment.TRAILING)
+						.addComponent(title, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
+						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
+					.addContainerGap())
+		);
+		gl_eastPanel.setVerticalGroup(
+			gl_eastPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_eastPanel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(title)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE))
+		);
+		eastPanel.setLayout(gl_eastPanel);
+
+		mainFrame.revalidate();
+		mainFrame.repaint();
+	}
+	
+	private static void closeFrames() {
 		try {
 			productForm.dispose();
-		}catch(NullPointerException ex) {};
-		try {
-			orderForm.dispose();
-		}catch(NullPointerException ex) {};
+		}catch(Exception e) {};
 		try {
 			updateForm.dispose();
-		}catch(NullPointerException ex) {};
+		}catch(Exception er) {};
+		try {
+			orderForm.dispose();
+		}catch(Exception err) {};
+	}
+	
+	static void updateTable(String choice) {
+		closeFrames();
+		restoreTable();
+		title.setText(choice);	
+		table.setModel(data.generateTable(choice, 0));
+	}
+	/**
+	 * @wbp.parser.entryPoint
+	 */
+	private JPanel financialOverview() {
+		JPanel panel = new JPanel();
+		panel.setBackground(new Color(255, 255, 255));
+		
+		JLabel financeTitle = new JLabel("Financial overview for UK operations");
+		financeTitle.setBackground(Color.WHITE);
+		financeTitle.setHorizontalAlignment(SwingConstants.LEFT);
+		financeTitle.setFont(new Font("Arial", Font.BOLD, 20));
+		financeTitle.setForeground(new Color(11, 26, 106));
+		
+		JLabel totalSalesLbl = new JLabel("Total revenue from domestic sales: \u00A3");
+		totalSalesLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		totalSalesLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		totalSalesLbl.setForeground(new Color(11, 26, 106));
+		
+		JLabel totalVatLbl = new JLabel("Total Value Added Tax: \u00A3");
+		totalVatLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		totalVatLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		totalVatLbl.setForeground(new Color(11, 26, 106));
+		
+		JLabel totalProductsSoldLbl = new JLabel("Total products sold:");
+		totalProductsSoldLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		totalProductsSoldLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		totalProductsSoldLbl.setForeground(new Color(11, 26, 106));
+		
+		JLabel totalCustomersLbl = new JLabel("Total customers:");
+		totalCustomersLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		totalCustomersLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		totalCustomersLbl.setForeground(new Color(11, 26, 106));
+		
+		JLabel totalSuppliersLbl = new JLabel("Total suppliers:");
+		totalSuppliersLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		totalSuppliersLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		totalSuppliersLbl.setForeground(new Color(11, 26, 106));
+		
+		JLabel lblNumberOfSales = new JLabel("Number of sales representatives:");
+		lblNumberOfSales.setHorizontalAlignment(SwingConstants.LEFT);
+		lblNumberOfSales.setFont(new Font("Arial", Font.BOLD, 16));
+		lblNumberOfSales.setForeground(new Color(11, 26, 106));
+		
+		JLabel totalOrdersLbl = new JLabel("Total orders:");
+		totalOrdersLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		totalOrdersLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		totalOrdersLbl.setForeground(new Color(11, 26, 106));
+		
+		JLabel activeProductsLbl = new JLabel("Number of products listed:");
+		activeProductsLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		activeProductsLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		activeProductsLbl.setForeground(new Color(11, 26, 106));
+		
+		JLabel disabledProducts = new JLabel("Number of products delisted:");
+		disabledProducts.setHorizontalAlignment(SwingConstants.LEFT);
+		disabledProducts.setFont(new Font("Arial", Font.BOLD, 16));
+		disabledProducts.setForeground(new Color(11, 26, 106));
+		
+		GroupLayout gl_panel = new GroupLayout(panel);
+		gl_panel.setHorizontalGroup(
+			gl_panel.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_panel.createSequentialGroup()
+					.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(58)
+							.addComponent(totalVatLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(58)
+							.addComponent(activeProductsLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(58)
+							.addComponent(disabledProducts, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(58)
+							.addComponent(lblNumberOfSales, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(58)
+							.addComponent(totalProductsSoldLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(58)
+							.addComponent(totalCustomersLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(58)
+							.addComponent(totalSuppliersLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(58)
+							.addComponent(totalOrdersLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(58)
+							.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
+								.addComponent(financeTitle, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
+								.addComponent(totalSalesLbl, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE))
+							.addGap(41))) 
+					.addContainerGap())
+		);
+		gl_panel.setVerticalGroup(
+			gl_panel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(financeTitle, GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
+					.addGap(43)
+					.addComponent(totalSalesLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(totalVatLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(activeProductsLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(disabledProducts, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(lblNumberOfSales, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(totalProductsSoldLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(totalCustomersLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(totalSuppliersLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(totalOrdersLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addGap(106))
+		);
+		panel.setLayout(gl_panel);
+		return panel;
 	}
 }
