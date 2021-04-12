@@ -12,13 +12,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
 import cam.business.logic.DataManager;
 import java.awt.Font;
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 import java.awt.Toolkit;
 import javax.swing.JPasswordField;
+
+//  Author: Cameron Morrison 569530
+//  Second year graded unit project. 
 
 public class Driver {
 	private DataManager data;
@@ -41,7 +43,6 @@ public class Driver {
 		
 	//Login user interface
 	private void login() {
-		
 		JFrame frame = new JFrame();
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Driver.class.getResource("/cam/gui/icon.png")));
 		frame.setBackground(Color.WHITE);
@@ -92,15 +93,18 @@ public class Driver {
 			@SuppressWarnings("deprecation")
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
+				try { 
 					int id = Integer.parseInt(userText.getText());
 					if(data.validateLogin(id, passwordText.getText()) == false){
+						//If login isn't valid, throw exception
 						throw new Exception();
 					}else {
+						//Login was valid, dispose frame and create dash board. 
 						frame.dispose();
 						dashboard dashboard = new dashboard();
 						dashboard.createDashboard();
 					}
+					//Catch exception and display error message
 				}catch(Exception error) {
 					JOptionPane.showMessageDialog(null, "Incorrect login");
 				}

@@ -1,5 +1,8 @@
 package cam.business.logic;
 
+//Author: Cameron Morrison 569530
+//Second year graded unit project. 
+
 public class Staff {
 	private int staffID;
 	private String firstName;

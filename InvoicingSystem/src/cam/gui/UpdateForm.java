@@ -15,18 +15,16 @@ import javax.swing.JButton;
 import java.awt.Color;
 import java.awt.Cursor;
 import javax.swing.border.MatteBorder;
-
-import com.mysql.cj.xdevapi.Table;
-
 import cam.business.logic.DataManager;
-
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
-import javax.swing.UIManager;
+
+//Author: Cameron Morrison 569530
+//Second year graded unit project. 
 
 public class UpdateForm {
 	private JTextField idField;
@@ -48,7 +46,9 @@ public class UpdateForm {
 		frmUpdateProduct.setType(Type.POPUP);
 		frmUpdateProduct.addWindowListener(new WindowAdapter(){
             @Override
+            //Default closing event
             public void windowClosing(WindowEvent e){
+            	//Close frame and update products table
             	frmUpdateProduct.dispose();
             	dashboard.updateTable("Products");    	
             }
@@ -133,12 +133,17 @@ public class UpdateForm {
 				try {
 					int id = Integer.parseInt(idField.getText());
 					if(data.doesProductExist(id) == false) {
+						//If product doesn't exist
 						idField.setText("Incorrect, that is not a valid product ID.");
 					} else {
+						//If product exists
 						int quantity = 21;
 						String desc = "";
 						double price = 0.00;
+						//If one of the options isn't blank
 						if(!descField.getText().isBlank() || !quantityField.getText().isBlank() || !priceField.getText().isBlank()) {
+							
+							//If description field isn't blank then validate
 							if(!descField.getText().isBlank()) {
 								if(descField.getText().length() < 10 || descField.getText().length() > 250) {
 									descField.setText("Description must be between 10 - 250 characters.");
@@ -147,7 +152,7 @@ public class UpdateForm {
 									desc = descField.getText();
 								}
 							}
-						
+							//If quantity field isn't blank then validate
 							if(!quantityField.getText().isBlank()) {
 								int fieldQuantity = Integer.parseInt(quantityField.getText());
 								if(fieldQuantity < 0 || fieldQuantity > 20) {
@@ -157,13 +162,20 @@ public class UpdateForm {
 									quantity = fieldQuantity;
 								}
 							} 
+							//If price field isn't blank then validate
 							if(!priceField.getText().isBlank()) {
-								price = Double.parseDouble(priceField.getText());
+								if(price > 0.00) {
+									price = Double.parseDouble(priceField.getText());
+								}else {
+									warningLbl.setText("Price cannot be negative.");
+								}
 							}
-										
+							
+							//If update product returns true
 							if(data.updateProduct(id, quantity, desc, price)) {
 								frmUpdateProduct.dispose();			
 								JOptionPane.showMessageDialog(null, "Product " + id + " has been updated.");
+								//Programmatically trigger close event
 								frmUpdateProduct.dispatchEvent(new WindowEvent(frmUpdateProduct, WindowEvent.WINDOW_CLOSING));
 							} else { 
 								warningLbl.setText("There was an issue, please restart program.");
@@ -180,6 +192,7 @@ public class UpdateForm {
 		updateBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		updateBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		
+		//Button to toggle the status of the product
 		JButton btnRemoveProduct = new JButton("Delist / relist");
 		btnRemoveProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -188,7 +201,9 @@ public class UpdateForm {
 					if(data.doesProductExist(input) == false) {
 						idField.setText("Incorrect, that is not a valid product ID.");
 					}else {
+						//If product is exists, remove it
 						data.removeProduct(input);
+						//Programmatically trigger close event
 						frmUpdateProduct.dispatchEvent(new WindowEvent(frmUpdateProduct, WindowEvent.WINDOW_CLOSING));
 					}
 				}catch(Exception err) {

@@ -10,19 +10,17 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle.ComponentPlacement;
-
 import cam.business.logic.DataManager;
-
 import javax.swing.SwingConstants;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+//Author: Cameron Morrison 569530
+//Second year graded unit project. 
+ 
 public class newProduct {
 	private JFrame frmNewProduct;
 	private JTextField nameField;
@@ -88,14 +86,17 @@ public class newProduct {
 		warningLbl.setForeground(Color.RED);
 		warningLbl.setHorizontalAlignment(SwingConstants.CENTER);
 		
+		//Button for existing supplier
 		JButton supplierBtn = new JButton("Existing supplier");
 		supplierBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//If validate form is true
 				if(validateForm()) {
 					try {
+						//Check if supplier exists
 						int id = Integer.parseInt(JOptionPane.showInputDialog(frmNewProduct, "Please enter supplier ID"));
 						if(data.doesSupplierExist(id)) {
-							System.out.println("Funding secured");
+							//Add product
 							data.addProduct(id, nameField.getText(), descField.getText(), Double.parseDouble(priceField.getText()), Integer.parseInt(quantityField.getText()));
 						} else {
 							throw new Exception();
@@ -108,23 +109,24 @@ public class newProduct {
 		});
 		supplierBtn.setFont(new Font("Arial", Font.PLAIN, 16));
 		
+		//Button for new supplier button
 		JButton newSupplierBtn = new JButton("New supplier");
 		newSupplierBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//If validate form is true
 				if(validateForm()) {
 					try {
-					productName = nameField.getText();
-					desc = descField.getText();
-					price = Double.parseDouble(priceField.getText());
-					quantity = Integer.parseInt(quantityField.getText());
-					
-					JPanel panel = supplierForm();
-					frmNewProduct.getContentPane().setLayout(new BorderLayout());
-					frmNewProduct.getContentPane().removeAll();
-					frmNewProduct.getContentPane().add(panel, BorderLayout.CENTER);
-					frmNewProduct.revalidate();
-					frmNewProduct.repaint();
-
+						productName = nameField.getText();
+						desc = descField.getText();
+						price = Double.parseDouble(priceField.getText());
+						quantity = Integer.parseInt(quantityField.getText());
+						//Form to create new supplier
+						JPanel panel = supplierForm();
+						frmNewProduct.getContentPane().setLayout(new BorderLayout());
+						frmNewProduct.getContentPane().removeAll();
+						frmNewProduct.getContentPane().add(panel, BorderLayout.CENTER);
+						frmNewProduct.revalidate();
+						frmNewProduct.repaint();
 					}catch(Exception err) {
 						warningLbl.setText("Something went wrong, restart program.");
 					}
@@ -191,6 +193,7 @@ public class newProduct {
 		return frmNewProduct;
 	}
 	
+	//New supplier form
 	private JPanel supplierForm() {
 		JPanel panel = new JPanel();
 	
@@ -232,25 +235,27 @@ public class newProduct {
 		JButton confirmBtn = new JButton("Confirm listing");
 		confirmBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//If one of the fields is empty
 				if(companyNameField.getText().isBlank() || phoneField.getText().isBlank() || emailField.getText().isBlank()) {
+					//Warn users to fill in the field
 					supplierWarningLbl.setText("Please fill in all fields.");
 				}else {
+					//If phone number isn't valid
 					if(data.isValidPhone(phoneField.getText()) == false) {
 						supplierWarningLbl.setText("Phone number is not in valid format.");
 					} else {
+						//If email isn't valid
 						if(data.isValidEmail(emailField.getText()) == false) {
 							supplierWarningLbl.setText("Email is not in valid format.");
 						} else {
-							if(data.isValidName(companyNameField.getText()) == false) {
-								supplierWarningLbl.setText("Name is not in valid format.");
-							} else {
-								 if(data.addSupplier(companyNameField.getText(), phoneField.getText(), emailField.getText())) {
-									 data.addProduct(-1, productName, desc, price, quantity);
-									 frmNewProduct.dispose();
-									 JOptionPane.showMessageDialog(null, "Successfully added new product and supplier.");
-								 }else {
-									 supplierWarningLbl.setText("Error please restart program.");
-								 }
+							 //If add supplier is successful, add product, and update table
+							 if(data.addSupplier(companyNameField.getText(), phoneField.getText(), emailField.getText())) {
+								 data.addProduct(-1, productName, desc, price, quantity);
+								 frmNewProduct.dispose();
+								 JOptionPane.showMessageDialog(null, "Successfully added new product and supplier.");
+								 dashboard.updateTable("Suppliers");  
+							 }else {
+								 supplierWarningLbl.setText("Error please restart program.");
 							}
 						}
 					}
@@ -259,7 +264,6 @@ public class newProduct {
 		});
 		confirmBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		
-
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
@@ -308,26 +312,31 @@ public class newProduct {
 		return panel;
 	}
 	
-	
+	//Validate product fields contents
 	private boolean validateForm() {
+		//If one of the fields is empty display error messages
 		if(nameField.getText().isBlank() || descField.getText().isBlank() || priceField.getText().isBlank() || quantityField.getText().isBlank()) {
 			warningLbl.setText("Please fill in all fields");
 			return false;
-		}else {
+		}else { 
+			//If the name of the product is less than 5 in length or more than 50, display error message
 			if(nameField.getText().length() < 5 || nameField.getText().length() > 50) {
 				warningLbl.setText("Please make the name field 5-50 characters.");
 				return false;
 			}else {
+				//If the name of the product is less than 5 in length or more than 50, display error message
 				if(descField.getText().length() < 10 || descField.getText().length() > 250) {
 					warningLbl.setText("Please make the description 10-250 characters.");
 					return false;
 				}else {
 					try {
+						//Check if price and quantity can be numeral
 						double testPrice = Double.parseDouble(priceField.getText());
 						int testQuantity = Integer.parseInt(quantityField.getText());
 						if(testQuantity <= 0 || testQuantity > 20 || testPrice < 0.00) {
 							throw new Exception();
 						}
+						//Throw error if they can't be parsed
 					}catch(Exception e) {
 						warningLbl.setText("Price and quantity must be valid values.");
 						return false;

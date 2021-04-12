@@ -10,12 +10,13 @@ import java.awt.Color;
 import java.awt.Font;
 import javax.swing.JTable;
 import javax.swing.border.MatteBorder;
-
 import cam.business.logic.DataManager;
 import cam.business.logic.Transactions;
-
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
+
+//Author: Cameron Morrison 569530
+//Second year graded unit project. 
 
 public class Invoice {
 	private DataManager data = new DataManager();
@@ -160,6 +161,7 @@ public class Invoice {
 		orderTable.setRowSelectionAllowed(false);
 		orderTable.setFont(new Font("Arial", Font.PLAIN, 12));
 		orderTable.setFillsViewportHeight(true);
+		//Returns the populated order items table from data manger class
 		orderTable.setModel(data.generateTable("Items", id));
 		orderTable.getTableHeader().setOpaque(false);
 		orderTable.getTableHeader().setBackground(new Color(11, 26, 106));
@@ -171,7 +173,8 @@ public class Invoice {
 		custTable.setEnabled(false);
 		custTable.setRowSelectionAllowed(false);
 		custTable.setFillsViewportHeight(true);
-		custTable.setModel(data.generateTable("Customers",1));
+		//Returns the customer table from data manger class
+		custTable.setModel(data.generateTable("Customers", 1));
 		custTable.setFont(new Font("Arial", Font.PLAIN, 12));
 		custTable.getTableHeader().setOpaque(false);
 		custTable.getTableHeader().setBackground(new Color(11, 26, 106));

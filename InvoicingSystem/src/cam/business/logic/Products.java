@@ -1,5 +1,8 @@
 package cam.business.logic;
 
+//Author: Cameron Morrison 569530
+//Second year graded unit project. 
+
 class Products {
 	private int productId;
 	private String name;
@@ -69,7 +72,7 @@ class Products {
 	}
 	
 	/**
-	 * @param remove product
+	 * @param delist or relist product
 	 */
 	public void swapAvaliable() {
 		if(this.avaliable == 1) {

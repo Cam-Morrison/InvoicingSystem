@@ -11,8 +11,6 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import java.sql.Date;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -22,16 +20,11 @@ import cam.business.logic.DataManager;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-
 import javax.swing.JTable;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.CompoundBorder;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumnModel;
-
 import com.github.lgooddatepicker.components.DatePicker;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.Toolkit;
@@ -41,7 +34,9 @@ import java.awt.ComponentOrientation;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import javax.swing.UIManager;
-import java.awt.Canvas;
+
+//Author: Cameron Morrison 569530
+//Second year graded unit project. 
 
 public class dashboard extends JFrame {
 
@@ -61,17 +56,14 @@ public class dashboard extends JFrame {
 
 	@SuppressWarnings("serial")
 	public void createDashboard() {
-		
 		mainFrame = new JFrame();
 		mainFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(dashboard.class.getResource("/cam/gui/icon.png")));
 		mainFrame.setBackground(Color.WHITE);
 		mainFrame.setForeground(Color.WHITE);
 		mainFrame.setLocationRelativeTo(null);
 		mainFrame.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e)
-			{
-				//Closing event
+			@Override //Default closing event
+			public void windowClosing(WindowEvent e){
 				mainFrame.dispose();
 				System.exit(0);
 			}
@@ -85,44 +77,45 @@ public class dashboard extends JFrame {
 	    scrollPane = new JScrollPane();
 	    
 	    //Creation of JTable
-	    table = new JTable() {
+	    table = new JTable() { //Custom conditional formatting 
 	    	 public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
-
 	        	Component comp = super.prepareRenderer(renderer, row, col);
-	        	
+	        	//If the the column is "quantity"
 	        	 if (table.getColumnName(col).compareToIgnoreCase("Quantity") == 0) {
             		int fieldValue = 0;
-            		
 	            	try {
 	            		fieldValue = (int) table.getModel().getValueAt(row, 4);
 	            	}catch(Exception e) {
 	            		return comp;
-	            	}
+	            	} //If cell value is between 0-5 then colour yellow for stock warning.
 	            	if(fieldValue <= 5 && fieldValue > 0) {
 	                    comp.setBackground(new Color(255,255,0));
 	                    comp.setForeground(Color.black);
-	                } else if(fieldValue > 5) {
+	                  //If cell value is more than 5 then colour green
+	                } else if(fieldValue > 5) { 
 	                	comp.setBackground(new Color(124,252,0));
 	                	comp.setForeground(Color.black);
+	                	//If cell value is 0 then colour red to show importance.
 	                } else if(fieldValue == 0){
 	                    comp.setBackground(new Color(139,0,0));
 	                    comp.setForeground(Color.white);
-	                }
+	                } //If column is "Status"
 	        	 }else if(table.getColumnName(col).compareToIgnoreCase("Status") == 0) {
 	        		int status = 1;
-	            	try {
+	            	try { 
 	            		status = (int) table.getModel().getValueAt(row, 6);
 	            	}catch(Exception e) {
 	            		return comp;
-	            	}
+	            	} //Colour green for available
 	        		if(status > 0) {
 	                    comp.setBackground(new Color(124,252,0));
 	                    comp.setForeground(Color.black);
+	                  //Colour red for unavailable
 	                } if(status == 0) {
 	                    comp.setBackground(new Color(139,0,0));
 	                    comp.setForeground(Color.white);
 	                } 
-	            }else {
+	            }else { //else default black text, white background
 	                comp.setForeground(Color.black);
 	                comp.setBackground(Color.white);
 	            }
@@ -155,24 +148,26 @@ public class dashboard extends JFrame {
 		displayBtn.setFocusPainted(false);
 		displayBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		displayBtn.setForeground(new Color(11, 26, 106));
-		
 		displayBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent  e) {
+				//Closes any already open dialogs.
 				closeFrames();
+				//A list of drop down options.
 				Object options[] = {"Transactions", "Customers", "Suppliers", "Products", "Administrators", "Shipping", "Invoice"};
 		        Object selectionObject = JOptionPane.showInputDialog(mainFrame, "Choose", "Menu", JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-		        if(!(selectionObject == null)) {
+		        //if user didn't click cancel
+		        if(!(selectionObject == null)) { 
 		        	String selectionString = selectionObject.toString();
-		        	try {
+		        	try { //Try to remove invoice panel if its there
 		        		eastPanel.remove(invoice);
 		        	}catch(Exception ex){	
-		        	} finally {
+		        	} finally { //Always run:
 			        	if(selectionString.equals("Invoice")) { 
 			        		boolean valid = false;
 			        		int ans = 0;
 			        		do {
-				        		try {
+				        		try { //Displays transactions so user can cross reference order ID before generating invoice
 									table.setModel(data.generateTable("Transactions", 0));
 									title.setText("Transactions");		
 					        		ans = Integer.parseInt(JOptionPane.showInputDialog(mainFrame,"Please enter an order ID to display invoice.",JOptionPane.INFORMATION_MESSAGE));
@@ -186,7 +181,7 @@ public class dashboard extends JFrame {
 				        			break;
 				        		}
 			        		}while(valid != true);
-			        		
+			        		//If valid is true then add invoice panel
 				        	if(valid == true) {
 				        		restoreTable();
 				        		Invoice inv = new Invoice();
@@ -197,8 +192,8 @@ public class dashboard extends JFrame {
 				        		eastPanel.add(invoice, BorderLayout.CENTER);
 				        		mainFrame.setSize((int)size.getWidth()/2, (int)size.getHeight()/2);
 				        		mainFrame.setLocationRelativeTo(null);
-				        	}
-			        	}else {
+				        	} 
+			        	}else { //Else invoice cannot have been the selected option so generate the table
 							table.setModel(data.generateTable(selectionString, 0));
 							title.setText(selectionString);		
 							restoreTable();
@@ -209,6 +204,7 @@ public class dashboard extends JFrame {
 		});
 		displayBtn.setBackground(Color.WHITE);
 		
+		//Button to create new orders
 		JButton orderBtn = new JButton("Create order");
 		orderBtn.setIgnoreRepaint(true);
 		orderBtn.setFocusable(false);
@@ -219,7 +215,9 @@ public class dashboard extends JFrame {
 		orderBtn.setForeground(new Color(11, 26, 106));
 		orderBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//Display product table
 				updateTable("Products");
+				//Add order form
 				NewOrder orderPage = new NewOrder();
 				orderForm = orderPage.clientInfoForm();
 				orderForm.setVisible(true);
@@ -230,6 +228,7 @@ public class dashboard extends JFrame {
 		});
 		orderBtn.setBackground(Color.WHITE);
 		
+		//Products button
 		JButton productBtn = new JButton("New product");
 		productBtn.setIgnoreRepaint(true);
 		productBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -251,7 +250,7 @@ public class dashboard extends JFrame {
 		});
 		productBtn.setBackground(Color.WHITE);
 		
-		//Button to update rooms
+		//Update button
 		JButton updateBtn = new JButton("Update product");
 		updateBtn.setIgnoreRepaint(true);
 		updateBtn.setFocusable(false);
@@ -262,6 +261,7 @@ public class dashboard extends JFrame {
 		updateBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		updateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+					//Display products table
 					updateTable("Products");
 					UpdateForm up = new UpdateForm();
 					updateForm = up.generateForm();
@@ -273,7 +273,7 @@ public class dashboard extends JFrame {
 		});
 		updateBtn.setBackground(Color.WHITE);
 		
-		//Button to cancel bookings
+		//Button to create report
 		JButton reportBtn = new JButton("Create report");
 		reportBtn.setIgnoreRepaint(true);
 		reportBtn.setFocusTraversalKeysEnabled(false);
@@ -283,6 +283,7 @@ public class dashboard extends JFrame {
 		reportBtn.setFont(new Font("Arial", Font.BOLD, 16));
 		reportBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//Close existing frames 
 				closeFrames();
 				Object options[] = {"Operation overview", "Order before date", "Low inventory products"};
 		        Object selection = JOptionPane.showInputDialog(mainFrame, "Choose", "Menu", JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
@@ -302,7 +303,7 @@ public class dashboard extends JFrame {
 		        		mainFrame.revalidate();
 		        		mainFrame.repaint();
 		        	} else if(selection.equals("Order before date")) {
-						//Date entry
+						//Date picker frame
 						DatePicker jd = new DatePicker();
 						String message ="Search for all orders placed before:\n";
 						Object[] params = {message,jd};
@@ -317,25 +318,29 @@ public class dashboard extends JFrame {
 			        		eastPanel.remove(invoice);
 			        	}catch(Exception ex){};	
 	
-				    	if(date != null) {
+				    	if(date != null) { 
+				    		//Return orders before date 
 					        if(data.ordersBeforeDate(date) == true) {
 								table.setModel(data.generateTable("Date", 0));
 								title.setText("Transactions before " + date);
+								//Adds tables back
 								restoreTable();
 					        }else {
 					        	JOptionPane.showMessageDialog(mainFrame, "There are no orders before selected date.");
 					        }
 				    	}
-			        } else {
+			        } else { 
+			        	//Show table contents for low stock
 						table.setModel(data.generateTable("LowStock", 0));
 						title.setText("Low inventory products");
 						restoreTable();
 			        }
 		        }
 		}});
-		
 		reportBtn.setBackground(Color.WHITE);
 		reportBtn.setForeground(new Color(11, 26, 106));
+		
+		//Windows builder layout
 		GroupLayout groupLayout = new GroupLayout(mainFrame.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -349,7 +354,7 @@ public class dashboard extends JFrame {
 				.addComponent(westPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 				.addComponent(eastPanel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE)
 		);
-		
+		//Title bar for east panel 
 		title = new JLabel("Transactions");
 		title.setBackground(Color.WHITE);
 		title.setHorizontalAlignment(SwingConstants.CENTER);
@@ -374,6 +379,7 @@ public class dashboard extends JFrame {
 		);
 		eastPanel.setLayout(gl_eastPanel);
 		
+		//Print button that lets users print and save the contents of the page
 		JButton printBtn = new JButton("Print page");
 		printBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		printBtn.setForeground(new Color(11, 26, 106));
@@ -382,7 +388,7 @@ public class dashboard extends JFrame {
 				  PrinterJob pj = PrinterJob.getPrinterJob();
 				  PageFormat pf = pj.defaultPage();
 				  pj.setJobName(" Print Component ");
-				  
+				  //Set page format landscape by default
 				  pf.setOrientation(PageFormat.LANDSCAPE);
 				  pj.setPrintable (new Printable() {    
 					  
@@ -446,20 +452,22 @@ public class dashboard extends JFrame {
 		westPanel.setLayout(gl_westPanel);
 		mainFrame.getContentPane().setLayout(groupLayout);
 	   
-	
 		//Position JFrame in middle of monitor
 		mainFrame.setLocationRelativeTo(null);
 		mainFrame.setVisible(true);
 	}
 	
+	//Method to add table and title back to east panel
 	private static void restoreTable() {
-		try {
+		try { //to remove overview page if its there
 			eastPanel.remove(overview);
 		}catch(Exception e) {};
-		try {
+		try { //to remove invoice page if its there
 			eastPanel.remove(invoice);
 		}catch(Exception e) {};
+		//Unlock mainframe size
 		mainFrame.setResizable(true);
+		//Reconfigure the layout
 		GroupLayout gl_eastPanel = new GroupLayout(eastPanel);
 		gl_eastPanel.setHorizontalGroup(
 			gl_eastPanel.createParallelGroup(Alignment.TRAILING)
@@ -483,6 +491,7 @@ public class dashboard extends JFrame {
 		mainFrame.repaint();
 	}
 	
+	//Try to close any frames that could be open before opening another
 	private static void closeFrames() {
 		try {
 			productForm.dispose();
@@ -495,12 +504,14 @@ public class dashboard extends JFrame {
 		}catch(Exception err) {};
 	}
 	
+	//Restore table and update the tables model
 	static void updateTable(String choice) {
 		closeFrames();
 		restoreTable();
 		title.setText(choice);	
 		table.setModel(data.generateTable(choice, 0));
 	}
+	
 	/**
 	 * @wbp.parser.entryPoint
 	 */
@@ -514,47 +525,47 @@ public class dashboard extends JFrame {
 		financeTitle.setFont(new Font("Arial", Font.BOLD, 20));
 		financeTitle.setForeground(new Color(11, 26, 106));
 		
-		JLabel totalSalesLbl = new JLabel("Total revenue from domestic sales: \u00A3");
+		JLabel totalSalesLbl = new JLabel("Total revenue from domestic sales: \u00A3" + data.totalSales());
 		totalSalesLbl.setHorizontalAlignment(SwingConstants.LEFT);
 		totalSalesLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		totalSalesLbl.setForeground(new Color(11, 26, 106));
 		
-		JLabel totalVatLbl = new JLabel("Total Value Added Tax: \u00A3");
+		JLabel totalVatLbl = new JLabel("Total Value Added Tax: \u00A3" + data.totalVAT());
 		totalVatLbl.setHorizontalAlignment(SwingConstants.LEFT);
 		totalVatLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		totalVatLbl.setForeground(new Color(11, 26, 106));
 		
-		JLabel totalProductsSoldLbl = new JLabel("Total products sold:");
+		JLabel totalProductsSoldLbl = new JLabel("Total products sold: " + data.totalSold());
 		totalProductsSoldLbl.setHorizontalAlignment(SwingConstants.LEFT);
 		totalProductsSoldLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		totalProductsSoldLbl.setForeground(new Color(11, 26, 106));
 		
-		JLabel totalCustomersLbl = new JLabel("Total customers:");
+		JLabel totalCustomersLbl = new JLabel("Total customers:" + data.totalUsers());
 		totalCustomersLbl.setHorizontalAlignment(SwingConstants.LEFT);
 		totalCustomersLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		totalCustomersLbl.setForeground(new Color(11, 26, 106));
 		
-		JLabel totalSuppliersLbl = new JLabel("Total suppliers:");
+		JLabel totalSuppliersLbl = new JLabel("Total suppliers: " + data.totalSuppliers());
 		totalSuppliersLbl.setHorizontalAlignment(SwingConstants.LEFT);
 		totalSuppliersLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		totalSuppliersLbl.setForeground(new Color(11, 26, 106));
 		
-		JLabel lblNumberOfSales = new JLabel("Number of sales representatives:");
-		lblNumberOfSales.setHorizontalAlignment(SwingConstants.LEFT);
-		lblNumberOfSales.setFont(new Font("Arial", Font.BOLD, 16));
-		lblNumberOfSales.setForeground(new Color(11, 26, 106));
+		JLabel totalStaffLbl = new JLabel("Number of sales representatives: " + data.totalStaff());
+		totalStaffLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		totalStaffLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		totalStaffLbl.setForeground(new Color(11, 26, 106));
 		
-		JLabel totalOrdersLbl = new JLabel("Total orders:");
+		JLabel totalOrdersLbl = new JLabel("Total orders: " + data.totalOrders());
 		totalOrdersLbl.setHorizontalAlignment(SwingConstants.LEFT);
 		totalOrdersLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		totalOrdersLbl.setForeground(new Color(11, 26, 106));
 		
-		JLabel activeProductsLbl = new JLabel("Number of products listed:");
+		JLabel activeProductsLbl = new JLabel("Number of products listed: " + data.activeProducts());
 		activeProductsLbl.setHorizontalAlignment(SwingConstants.LEFT);
 		activeProductsLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		activeProductsLbl.setForeground(new Color(11, 26, 106));
 		
-		JLabel disabledProducts = new JLabel("Number of products delisted:");
+		JLabel disabledProducts = new JLabel("Number of products delisted: " + data.delistedProducts());
 		disabledProducts.setHorizontalAlignment(SwingConstants.LEFT);
 		disabledProducts.setFont(new Font("Arial", Font.BOLD, 16));
 		disabledProducts.setForeground(new Color(11, 26, 106));
@@ -575,7 +586,7 @@ public class dashboard extends JFrame {
 							.addComponent(disabledProducts, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
 						.addGroup(gl_panel.createSequentialGroup()
 							.addGap(58)
-							.addComponent(lblNumberOfSales, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
+							.addComponent(totalStaffLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
 						.addGroup(gl_panel.createSequentialGroup()
 							.addGap(58)
 							.addComponent(totalProductsSoldLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
@@ -610,7 +621,7 @@ public class dashboard extends JFrame {
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(disabledProducts, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(lblNumberOfSales, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addComponent(totalStaffLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(totalProductsSoldLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)

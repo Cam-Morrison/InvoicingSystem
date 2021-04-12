@@ -1,5 +1,8 @@
 package cam.business.logic;
 
+//Author: Cameron Morrison 569530
+//Second year graded unit project. 
+
 class InvoiceItem {
 	private int purchaseQuantity;
 	private double discount;

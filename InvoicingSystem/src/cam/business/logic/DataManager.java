@@ -17,24 +17,27 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import com.mysql.cj.jdbc.exceptions.CommunicationsException;
 
+//Author: Cameron Morrison 569530
+//Second year graded unit project. 
 
 public class DataManager {
 
-	//Instance variables
+	//Regular expressions 
 	private final Pattern namePattern = Pattern.compile("^[A-Z][a-z]+$");
 	private final Pattern emailPattern = Pattern.compile("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$");
     private final Pattern phonePattern = Pattern.compile("^(\\+\\d{1,3}( )?)?((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$" 
     + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?){2}\\d{3}$" + "|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?)(\\d{2}[ ]?){2}\\d{2}$");
     private final Pattern postcodePattern = Pattern.compile("^[A-Z]{1,2}[0-9R][0-9A-Z]? [0-9][ABD-HJLNP-UW-Z]{2}$");
+    //Lists of objects
 	private static ArrayList<Transactions> orderList = new ArrayList<Transactions>();
 	private static ArrayList<Clients> clientList = new ArrayList<Clients>();
 	private static ArrayList<Suppliers> supplierList = new ArrayList<Suppliers>();
 	private static  ArrayList<Products> productList = new ArrayList<Products>();
 	private static ArrayList<Staff> staffList = new ArrayList<Staff>();
+	//Other instance variables 
 	private Date selectedDate;
 	private String updateSQL;
 	private static int currentStaffMember;
-	
 	
 	//Validate login credentials 
 	public boolean validateLogin(int staffID, String password) throws SQLException {
@@ -211,7 +214,7 @@ public class DataManager {
 		}	
 	}
 	
-	//Creates a new order on clients behalf 
+	//Create a new order
 	public boolean newOrder(int customerId, ArrayList<Integer> productIds, ArrayList<Integer> quantities, ArrayList<Double> discounts, String shippingMethod) {
 		try {
 			//Get the next increment in orderID
@@ -226,10 +229,8 @@ public class DataManager {
 			//Get current time
 	        long millis=System.currentTimeMillis();  
 	        java.sql.Date date = new java.sql.Date(millis);  
-	       
 	        //Calculate total cost including VAT
 	        double totalCost = calculateTotal(quantities, discounts, productIds);
-	        
 	        //Calculate the expected delivery date based off royal mail average delivery times
 	        Calendar deliveryDate = Calendar.getInstance();
 	        switch(shippingMethod) {
@@ -243,6 +244,7 @@ public class DataManager {
 	        		deliveryDate.add(Calendar.DAY_OF_YEAR,5);
 	        		break;
 	        }
+	        //Date of expected delivery
 	        java.sql.Date dueDate = new java.sql.Date(deliveryDate.getTimeInMillis());
 	       
 	        //Find highest shippingID and add to the increment 
@@ -586,13 +588,77 @@ public class DataManager {
 	public int addCustomer(String forename, String surname, String email, String streetAddress, String city, String zipCode, String country) {
 		for(Clients c : clientList) {
 			if(c.getEmail().equals(email)) {
+				//If email exists, return customer ID
 				return c.getCustomerId();
 			}
-		}
+		} //Else create new customer and save details
 		int id = clientList.get(clientList.size() - 1).getCustomerId() + 1;
 		Clients customer = new Clients(forename, surname, id, email, streetAddress, city, zipCode, country);
 		clientList.add(customer);
 		storeDatabase(5, id);
 		return id;
 	} 		
+	
+	//Returns the sales in GBP (already includes discount and VAT amounts)
+	public double totalSales() {
+		double total = 0;
+		for(Transactions t : orderList) {
+			total += t.getTotalCost();
+		}
+		return total;
+	}
+	//Returns the total VAT
+	public double totalVAT() {
+		double vat = 0;
+		for(Transactions t : orderList) {
+			vat += ((t.getTotalCost() / 100) * 20);
+		} 
+		return vat;
+	}
+	//Returns the total number of products sold
+	public int totalSold() {
+		int sold = 0;
+		for(Transactions t : orderList) {
+			for(InvoiceItem i : t.getItems()) {
+				sold += i.getPurchaseQuantity();
+			}
+		} 
+		return sold;
+	}
+	//Returns the total number of customers
+	public int totalUsers() {
+		return clientList.size();
+	}
+	//Returns the total number of suppliers
+	public int totalSuppliers() {
+		return supplierList.size();
+	}
+	//Returns the total number of sales
+	public int totalStaff() {
+		return staffList.size();
+	}
+	//Returns the total number of orders
+	public int totalOrders() {
+		return orderList.size();
+	}
+	//Returns the total number of products currently available for sales
+	public int activeProducts() {
+		int count = 0;
+		for(Products p : productList) {
+			if(p.getAvaliable() == 1) {
+				count++;
+			}
+		}
+		return count;
+	}
+	//Returns the total number delisted products
+	public int delistedProducts() {
+		int count = 0;
+		for(Products p : productList) {
+			if(p.getAvaliable() == 0) {
+				count++;
+			}
+		}
+		return count;
+	}
 }

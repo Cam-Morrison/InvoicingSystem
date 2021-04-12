@@ -3,6 +3,9 @@ package cam.business.logic;
 import java.util.ArrayList;
 import java.util.Date;
 
+//Author: Cameron Morrison 569530
+//Second year graded unit project. 
+
 public class Transactions {
 	private int orderId;
 	private Date orderDate;
@@ -14,7 +17,6 @@ public class Transactions {
 	private String shippingMethod;
 	private Date estimatedDate;
 	private ArrayList<InvoiceItem> items;
-	
 	
 	//Constructor to create new Transaction
 	Transactions(int orderId, Date orderDate, double totalCost, Date dueDate, int customerId, int staffId, int shippingId,
@@ -30,10 +32,7 @@ public class Transactions {
 		this.shippingMethod = shippingMethod;
 		this.estimatedDate = estimatedDate;
 		this.items = items;
-	}
-	
-	//Getters
-	
+	}	
 	/**
 	 * @return the orderId
 	 */
@@ -94,7 +93,6 @@ public class Transactions {
 	public ArrayList<InvoiceItem> getItems() {
 		return items;
 	}	
-	
 	//Returns information on shipping
 	public String toString() {
 		return 
