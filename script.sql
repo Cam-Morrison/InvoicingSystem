@@ -22,10 +22,10 @@ ALTER TABLE customer ADD CONSTRAINT customer_pk PRIMARY KEY ( customer_id );
 
 CREATE TABLE invoice_item (
     purchase_quantity           TINYINT NOT NULL,
-	discount                    DECIMAL(2, 2) NOT NULL,
+	discount                    DECIMAL(4, 2) NOT NULL,
 	order_order_id              BIGINT NOT NULL,
     product_product_id          INT NOT NULL
-	purchase_price              DECIMAL(6, 2) NOT NULL,
+	purchase_price              DECIMAL(8, 2) NOT NULL,
 );
 
 ALTER TABLE invoice_item
@@ -35,7 +35,7 @@ ALTER TABLE invoice_item
 CREATE TABLE `ORDER` (
     order_id              BIGINT NOT NULL,
     order_date            DATE NOT NULL,
-    total_cost            DECIMAL(6, 2) NOT NULL,
+    total_cost            DECIMAL(8, 2) NOT NULL,
     due_date              DATE,
     customer_customer_id  INT NOT NULL,
     staff_staff_id        TINYINT NOT NULL
@@ -50,7 +50,7 @@ CREATE TABLE product (
     product_id            INT NOT NULL,
     name                  VARCHAR(128) NOT NULL,
     quantity              INT NOT NULL,
-	price                 DECIMAL(6, 2) NOT NULL,
+	price                 DECIMAL(8, 2) NOT NULL,
 	supplier_supplier_id  SMALLINT NOT NULL,
 	avaliable			  TINYINT(1) NOT NULL,
 	description      	  VARCHAR(256) NOT NULL 

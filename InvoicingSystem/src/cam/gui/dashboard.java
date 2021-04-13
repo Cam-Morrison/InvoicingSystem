@@ -385,6 +385,8 @@ public class dashboard extends JFrame {
 		printBtn.setForeground(new Color(11, 26, 106));
 		printBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//Close open frames so screen doesn't get clogged
+				  closeFrames();
 				  PrinterJob pj = PrinterJob.getPrinterJob();
 				  PageFormat pf = pj.defaultPage();
 				  pj.setJobName(" Print Component ");
@@ -550,7 +552,7 @@ public class dashboard extends JFrame {
 		totalSuppliersLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		totalSuppliersLbl.setForeground(new Color(11, 26, 106));
 		
-		JLabel totalStaffLbl = new JLabel("Number of sales representatives: " + data.totalStaff());
+		JLabel totalStaffLbl = new JLabel("Number of employees: " + data.totalStaff());
 		totalStaffLbl.setHorizontalAlignment(SwingConstants.LEFT);
 		totalStaffLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		totalStaffLbl.setForeground(new Color(11, 26, 106));
@@ -573,38 +575,22 @@ public class dashboard extends JFrame {
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.TRAILING)
-				.addGroup(gl_panel.createSequentialGroup()
-					.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(58)
-							.addComponent(totalVatLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(58)
-							.addComponent(activeProductsLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(58)
-							.addComponent(disabledProducts, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(58)
-							.addComponent(totalStaffLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(58)
-							.addComponent(totalProductsSoldLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(58)
-							.addComponent(totalCustomersLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(58)
-							.addComponent(totalSuppliersLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(58)
-							.addComponent(totalOrdersLbl, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE))
-						.addGroup(gl_panel.createSequentialGroup()
-							.addGap(58)
+				.addGroup(Alignment.LEADING, gl_panel.createSequentialGroup()
+					.addGap(58)
+					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+						.addComponent(totalVatLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+						.addComponent(activeProductsLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+						.addComponent(disabledProducts, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+						.addComponent(totalStaffLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+						.addComponent(totalProductsSoldLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+						.addComponent(totalCustomersLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+						.addComponent(totalSuppliersLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+						.addComponent(totalOrdersLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+						.addGroup(Alignment.TRAILING, gl_panel.createSequentialGroup()
 							.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
 								.addComponent(financeTitle, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
 								.addComponent(totalSalesLbl, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE))
-							.addGap(41))) 
+							.addGap(41)))
 					.addContainerGap())
 		);
 		gl_panel.setVerticalGroup(

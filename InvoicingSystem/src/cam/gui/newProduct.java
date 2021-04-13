@@ -96,8 +96,13 @@ public class newProduct {
 						//Check if supplier exists
 						int id = Integer.parseInt(JOptionPane.showInputDialog(frmNewProduct, "Please enter supplier ID"));
 						if(data.doesSupplierExist(id)) {
-							//Add product
-							data.addProduct(id, nameField.getText(), descField.getText(), Double.parseDouble(priceField.getText()), Integer.parseInt(quantityField.getText()));
+							//Add product (uses REGEX Pattern to remove pound symbol and comma from price double)
+							if(data.addProduct(id, nameField.getText(), descField.getText(), Double.parseDouble(priceField.getText().replaceAll("[,{2}|£]", "")), Integer.parseInt(quantityField.getText()))) {
+								frmNewProduct.dispose();
+								JOptionPane.showMessageDialog(null, "Product added");
+							}else {
+								warningLbl.setText("Something went wrong. Please restart.");
+							}
 						} else {
 							throw new Exception();
 						}
@@ -118,7 +123,9 @@ public class newProduct {
 					try {
 						productName = nameField.getText();
 						desc = descField.getText();
-						price = Double.parseDouble(priceField.getText());
+						//uses REGEX Pattern to remove pound symbol and comma from double
+						price = Double.parseDouble(priceField.getText().replaceAll("[,{2}|£]", ""));
+						System.out.println(price);
 						quantity = Integer.parseInt(quantityField.getText());
 						//Form to create new supplier
 						JPanel panel = supplierForm();
@@ -330,10 +337,16 @@ public class newProduct {
 					return false;
 				}else {
 					try {
-						//Check if price and quantity can be numeral
-						double testPrice = Double.parseDouble(priceField.getText());
+						//Check if price and quantity can be numeral (uses REGEX Pattern to remove pound symbol and comma from double)
+						double testPrice = Double.parseDouble(priceField.getText().replaceAll("[,{2}|£]", ""));
+						if(testPrice > 100000) {
+							//Display a more appropriate message than "Come on... seriously, in this economy!? You silly goose."
+							warningLbl.setText("Price cannot be over £100,000.");
+							return false;
+						}
 						int testQuantity = Integer.parseInt(quantityField.getText());
-						if(testQuantity <= 0 || testQuantity > 20 || testPrice < 0.00) {
+						//If quantity is less or equal to minimum, quantity is more than max or price is less or equal to minimum, throw exception
+						if(testQuantity <= 0 || testQuantity > 20 || testPrice <= 0.00) {
 							throw new Exception();
 						}
 						//Throw error if they can't be parsed

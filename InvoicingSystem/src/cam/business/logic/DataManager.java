@@ -210,6 +210,7 @@ public class DataManager {
 			storeDatabase(3, maxID);
 			return true;
 		}catch(Exception e) {
+			System.out.println(e);
 			return false;
 		}	
 	}
@@ -298,6 +299,7 @@ public class DataManager {
 	
 	//Stores newly entered information to database
 	private boolean storeDatabase(int option, int ID) {
+		String driver = "com.mysql.cj.jdbc.Driver";
 		String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
 		String user = "root";
 		String password = "root";
@@ -318,8 +320,10 @@ public class DataManager {
 					break;
 				case 3: //add new product
 					Products p = productList.get(ID - 1);
-					sql = "INSERT INTO `product` " +
-						  "VALUES (" + p.getProductId() + ", '" + p.getName() + "', " + p.getStockQuantity()
+					System.out.println(p.getName());
+					
+					sql = "INSERT INTO `product` (product_id, name, quantity, price, supplier_supplier_id, avaliable, description)" +
+						  " VALUES (" + p.getProductId() + ", '" + p.getName() + "', " + p.getStockQuantity()
 						  + ", " + p.getPrice() + ", " + p.getSupplierId() + ", " + p.getAvaliable()
 						  + ", '" + p.getDescription() + "');";
 					myStmt.executeUpdate(sql);
@@ -371,6 +375,7 @@ public class DataManager {
 			myConn.close();	
 			return true;
 		}catch(SQLException e) {
+			e.printStackTrace();
 			return false;
 		}	
 	}
@@ -378,6 +383,7 @@ public class DataManager {
 	//Loads any previous information from database
 	private boolean loadDatabase(int option) throws SQLException {
 		//Database connection information
+		String driver = "com.mysql.cj.jdbc.Driver";
 		String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
 		String user = "root";
 		String password = "root";

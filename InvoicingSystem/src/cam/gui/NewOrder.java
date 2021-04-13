@@ -421,7 +421,7 @@ public class NewOrder {
 			if(discountField.getText().isEmpty()) {
 				discount = 0.00;
 			}else { //If its not empty, check its the right format
-				discount = Double.parseDouble(discountField.getText());
+				discount = Double.parseDouble(discountField.getText().replaceAll("%", ""));
 			}
 			//If product isn't disabled (status 0)
 			if(data.forSale(product)) {
