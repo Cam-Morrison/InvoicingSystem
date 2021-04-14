@@ -151,24 +151,33 @@ public class DataManager {
 	//Updates product in list
 	public boolean updateProduct(int id, int quantity, String desc, double price) {
 		if(doesProductExist(id) == true) {
+			int count = 0;
 			//Update product class
 			if(quantity <= 20 && quantity >= 0) {
 				productList.get(id - 1).setStockQuantity(quantity);
+				count++;
 			}
-			if(desc.equals("") == false) {
+			if(desc.equals("") == false && desc.length() > 10 && desc.length() < 250) {
 				productList.get(id - 1).setDesc(desc);
+				count++;
 			}
 			if(price > 0.01) {
 				productList.get(id - 1).setPrice(price);
+				count++;
 			}
-			//Save to storage
-			this.updateSQL = "UPDATE product SET quantity = " + productList.get(id - 1).getStockQuantity() + ", description = '" 
-					+ productList.get(id - 1).getDescription() + "', price = " + productList.get(id - 1).getPrice() 
-					+ " WHERE product_id = " + productList.get(id - 1).getProductId()  + ";"; 
-			storeDatabase(2, id);
-			return true;
+			if(count >= 1) {
+				//Save to storage
+				this.updateSQL = "UPDATE product SET quantity = " + productList.get(id - 1).getStockQuantity() + ", description = '" 
+						+ productList.get(id - 1).getDescription() + "', price = " + productList.get(id - 1).getPrice() 
+						+ " WHERE product_id = " + productList.get(id - 1).getProductId()  + ";"; 
+				storeDatabase(2, id);
+				return true;
+			}else {
+				return false;
+			}
+		}else {
+			return false;
 		}
-		return false;
 	}
 	
 	//Returns stock count
@@ -210,7 +219,6 @@ public class DataManager {
 			storeDatabase(3, maxID);
 			return true;
 		}catch(Exception e) {
-			System.out.println(e);
 			return false;
 		}	
 	}
@@ -320,7 +328,6 @@ public class DataManager {
 					break;
 				case 3: //add new product
 					Products p = productList.get(ID - 1);
-					System.out.println(p.getName());
 					
 					sql = "INSERT INTO `product` (product_id, name, quantity, price, supplier_supplier_id, avaliable, description)" +
 						  " VALUES (" + p.getProductId() + ", '" + p.getName() + "', " + p.getStockQuantity()
@@ -375,7 +382,6 @@ public class DataManager {
 			myConn.close();	
 			return true;
 		}catch(SQLException e) {
-			e.printStackTrace();
 			return false;
 		}	
 	}
@@ -408,7 +414,6 @@ public class DataManager {
 				    break;
 				    
 				case 2:	//Once login is successful, load in other information from database
-					
 					sql = "SELECT * FROM customer, address WHERE customer_id = customer_customer_id";
 				    rs = myStmt.executeQuery(sql);
 				    while (rs.next()) {	
@@ -606,19 +611,31 @@ public class DataManager {
 	} 		
 	
 	//Returns the sales in GBP (already includes discount and VAT amounts)
-	public double totalSales() {
+	public double totalSales(Date date) {
 		double total = 0;
 		for(Transactions t : orderList) {
-			total += t.getTotalCost();
+			if(date == null) { //If date == null then calculate all time revenue
+				total += t.getTotalCost();
+			}else { //If order is after the date, add to total
+				if(t.getOrderDate().after(date)) {
+					total += t.getTotalCost();
+				} 
+			}
 		}
 		return total;
 	}
 	//Returns the total VAT
-	public double totalVAT() {
+	public double totalVAT(Date date) {
 		double vat = 0;
 		for(Transactions t : orderList) {
-			vat += ((t.getTotalCost() / 100) * 20);
-		} 
+			if(date == null) { //If date == null then calculate all time VAT
+				vat += ((t.getTotalCost() / 100) * 20);
+			}else { //If order is after the date, add to total
+				if(t.getOrderDate().after(date)) {
+					vat += ((t.getTotalCost() / 100) * 20);
+				} 
+			}
+		}
 		return vat;
 	}
 	//Returns the total number of products sold

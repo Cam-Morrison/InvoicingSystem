@@ -164,10 +164,11 @@ public class UpdateForm {
 							} 
 							//If price field isn't blank then validate
 							if(!priceField.getText().isBlank()) {
-								if(price > 0.00) {
-									price = Double.parseDouble(priceField.getText());
-								}else {
+								price = Double.parseDouble(priceField.getText().replaceAll("[,{2}|£]", ""));
+								if(price <= 0.00) {
 									warningLbl.setText("Price cannot be negative.");
+									priceField.setText("Cannot be negative.");
+									price = 0.00;
 								}
 							}
 							
@@ -178,14 +179,14 @@ public class UpdateForm {
 								//Programmatically trigger close event
 								frmUpdateProduct.dispatchEvent(new WindowEvent(frmUpdateProduct, WindowEvent.WINDOW_CLOSING));
 							} else { 
-								warningLbl.setText("There was an issue, please restart program.");
+								warningLbl.setText("Details need to be changed.");
 							}
 						}else {
 							warningLbl.setText("Please update one or more of the fields.");
 						}
 					}
 				}catch(Exception err) {
-					warningLbl.setText("Incorrect format, please enter a number.");
+					warningLbl.setText("Incorrect format, please enter an ID.");
 				}
 			}
 		});

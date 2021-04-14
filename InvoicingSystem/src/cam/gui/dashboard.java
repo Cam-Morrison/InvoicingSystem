@@ -11,6 +11,10 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.sql.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -518,6 +522,17 @@ public class dashboard extends JFrame {
 	 * @wbp.parser.entryPoint
 	 */
 	private JPanel financialOverview() {
+		//Use the dates to calculate weekly, monthly, annual revenue and VAT.
+		Calendar cal = new GregorianCalendar();
+		cal.add(Calendar.DAY_OF_MONTH, -7);
+		java.sql.Date sevenDaysAgo = new Date (cal.getTimeInMillis());
+		cal.clear();
+		cal.add(Calendar.MONTH, -1);
+		java.sql.Date monthAgo = new Date (cal.getTimeInMillis());
+		cal.clear();
+		cal.add(Calendar.YEAR, -1);
+		java.sql.Date yearAgo = new Date (cal.getTimeInMillis());
+		
 		JPanel panel = new JPanel();
 		panel.setBackground(new Color(255, 255, 255));
 		
@@ -527,15 +542,45 @@ public class dashboard extends JFrame {
 		financeTitle.setFont(new Font("Arial", Font.BOLD, 20));
 		financeTitle.setForeground(new Color(11, 26, 106));
 		
-		JLabel totalSalesLbl = new JLabel("Total revenue from domestic sales: \u00A3" + data.totalSales());
+		JLabel totalSalesLbl = new JLabel("Total revenue: £" + data.totalSales(null));
 		totalSalesLbl.setHorizontalAlignment(SwingConstants.LEFT);
 		totalSalesLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		totalSalesLbl.setForeground(new Color(11, 26, 106));
 		
-		JLabel totalVatLbl = new JLabel("Total Value Added Tax: \u00A3" + data.totalVAT());
+		JLabel totalVatLbl = new JLabel("Total VAT: £" + data.totalVAT(null));
 		totalVatLbl.setHorizontalAlignment(SwingConstants.LEFT);
 		totalVatLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		totalVatLbl.setForeground(new Color(11, 26, 106));
+		
+		JLabel weeklySalesLbl = new JLabel("Weekly revenue: £" + data.totalSales(sevenDaysAgo));
+		weeklySalesLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		weeklySalesLbl.setForeground(new Color(11, 26, 106));
+		weeklySalesLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		
+		JLabel monthlySalesLbl = new JLabel("Monthly revenue: £" + data.totalSales(monthAgo));
+		monthlySalesLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		monthlySalesLbl.setForeground(new Color(11, 26, 106));
+		monthlySalesLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		
+		JLabel yearlySalesLbl = new JLabel("Annual revenue: £" + data.totalSales(yearAgo));
+		yearlySalesLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		yearlySalesLbl.setForeground(new Color(11, 26, 106));
+		yearlySalesLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		
+		JLabel weeklyVATLbl = new JLabel("Weekly VAT: £" + data.totalVAT(sevenDaysAgo));
+		weeklyVATLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		weeklyVATLbl.setForeground(new Color(11, 26, 106));
+		weeklyVATLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		
+		JLabel monthlyVATLbl = new JLabel("Monthly VAT: £" + data.totalVAT(monthAgo));
+		monthlyVATLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		monthlyVATLbl.setForeground(new Color(11, 26, 106));
+		monthlyVATLbl.setFont(new Font("Arial", Font.BOLD, 16));
+		
+		JLabel YearlyVATLbl = new JLabel("Annual VAT: £" + data.totalVAT(yearAgo));
+		YearlyVATLbl.setHorizontalAlignment(SwingConstants.LEFT);
+		YearlyVATLbl.setForeground(new Color(11, 26, 106));
+		YearlyVATLbl.setFont(new Font("Arial", Font.BOLD, 16));
 		
 		JLabel totalProductsSoldLbl = new JLabel("Total products sold: " + data.totalSold());
 		totalProductsSoldLbl.setHorizontalAlignment(SwingConstants.LEFT);
@@ -574,23 +619,37 @@ public class dashboard extends JFrame {
 		
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
-			gl_panel.createParallelGroup(Alignment.TRAILING)
-				.addGroup(Alignment.LEADING, gl_panel.createSequentialGroup()
+			gl_panel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel.createSequentialGroup()
 					.addGap(58)
 					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(totalVatLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
-						.addComponent(activeProductsLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
-						.addComponent(disabledProducts, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
-						.addComponent(totalStaffLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
-						.addComponent(totalProductsSoldLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
-						.addComponent(totalCustomersLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
-						.addComponent(totalSuppliersLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
-						.addComponent(totalOrdersLbl, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 491, Short.MAX_VALUE)
+						.addComponent(totalOrdersLbl, GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
+						.addComponent(totalStaffLbl, GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
+						.addComponent(disabledProducts, GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
+						.addComponent(activeProductsLbl, GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
 						.addGroup(Alignment.TRAILING, gl_panel.createSequentialGroup()
 							.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
-								.addComponent(financeTitle, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
-								.addComponent(totalSalesLbl, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE))
-							.addGap(41)))
+								.addGroup(Alignment.LEADING, gl_panel.createSequentialGroup()
+									.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING, false)
+										.addComponent(monthlySalesLbl, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(weeklySalesLbl, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(totalSalesLbl, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
+										.addComponent(yearlySalesLbl, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+										.addComponent(monthlyVATLbl, GroupLayout.PREFERRED_SIZE, 236, GroupLayout.PREFERRED_SIZE)
+										.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
+											.addGroup(gl_panel.createSequentialGroup()
+												.addComponent(weeklyVATLbl, GroupLayout.PREFERRED_SIZE, 236, GroupLayout.PREFERRED_SIZE)
+												.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+											.addComponent(totalVatLbl, GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE))
+										.addComponent(YearlyVATLbl, GroupLayout.PREFERRED_SIZE, 236, GroupLayout.PREFERRED_SIZE)))
+								.addComponent(financeTitle, GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE))
+							.addGap(41))
+						.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING, false)
+							.addComponent(totalProductsSoldLbl, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(totalCustomersLbl, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(totalSuppliersLbl, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)))
 					.addContainerGap())
 		);
 		gl_panel.setVerticalGroup(
@@ -598,22 +657,39 @@ public class dashboard extends JFrame {
 				.addGroup(gl_panel.createSequentialGroup()
 					.addContainerGap()
 					.addComponent(financeTitle, GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
-					.addGap(43)
-					.addComponent(totalSalesLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(totalVatLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGap(40)
+					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(totalSalesLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+						.addComponent(totalVatLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(weeklySalesLbl, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
+						.addComponent(weeklyVATLbl, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_panel.createSequentialGroup()
+							.addComponent(monthlySalesLbl, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(yearlySalesLbl, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addComponent(monthlyVATLbl, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(YearlyVATLbl, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)))
+					.addGap(33)
 					.addComponent(activeProductsLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(disabledProducts, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(totalStaffLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGap(30)
 					.addComponent(totalProductsSoldLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(totalCustomersLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(totalSuppliersLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(totalOrdersLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+					.addGap(45)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(totalOrdersLbl, GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
 					.addGap(106))
