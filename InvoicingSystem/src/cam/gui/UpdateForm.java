@@ -154,7 +154,7 @@ public class UpdateForm {
 							}
 							//If quantity field isn't blank then validate
 							if(!quantityField.getText().isBlank()) {
-								int fieldQuantity = Integer.parseInt(quantityField.getText());
+								int fieldQuantity = Integer.parseInt(quantityField.getText().trim());
 								if(fieldQuantity < 0 || fieldQuantity > 20) {
 									quantityField.setText("Must be 0-20!");
 									warningLbl.setText("Quantity must be 0-20");
@@ -164,11 +164,10 @@ public class UpdateForm {
 							} 
 							//If price field isn't blank then validate
 							if(!priceField.getText().isBlank()) {
-								price = Double.parseDouble(priceField.getText().replaceAll("[,{2}|£]", ""));
-								if(price <= 0.00) {
+								price =  Double.parseDouble(priceField.getText().replaceAll("[,|£]", ""));
+								if(price < 0.01) {
 									warningLbl.setText("Price cannot be negative.");
 									priceField.setText("Cannot be negative.");
-									price = 0.00;
 								}
 							}
 							

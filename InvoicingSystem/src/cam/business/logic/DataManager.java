@@ -162,6 +162,7 @@ public class DataManager {
 				count++;
 			}
 			if(price > 0.01) {
+				System.out.println(price);
 				productList.get(id - 1).setPrice(price);
 				count++;
 			}
@@ -382,6 +383,7 @@ public class DataManager {
 			myConn.close();	
 			return true;
 		}catch(SQLException e) {
+			e.printStackTrace();
 			return false;
 		}	
 	}

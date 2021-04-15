@@ -97,7 +97,7 @@ public class newProduct {
 						int id = Integer.parseInt(JOptionPane.showInputDialog(frmNewProduct, "Please enter supplier ID"));
 						if(data.doesSupplierExist(id)) {
 							//Add product (uses REGEX Pattern to remove pound symbol and comma from price double)
-							if(data.addProduct(id, nameField.getText(), descField.getText(), Double.parseDouble(priceField.getText().replaceAll("[,{2}|£]", "")), Integer.parseInt(quantityField.getText()))) {
+							if(data.addProduct(id, nameField.getText(), descField.getText(), Double.parseDouble(priceField.getText().replaceAll("[,|£]", "")), Integer.parseInt(quantityField.getText()))) {
 								frmNewProduct.dispose();
 								JOptionPane.showMessageDialog(null, "Product added");
 							}else {
@@ -124,7 +124,7 @@ public class newProduct {
 						productName = nameField.getText();
 						desc = descField.getText();
 						//uses REGEX Pattern to remove pound symbol and comma from double
-						price = Double.parseDouble(priceField.getText().replaceAll("[,{2}|£]", ""));
+						price = Double.parseDouble(priceField.getText().replaceAll("[,|£]", ""));
 						System.out.println(price);
 						quantity = Integer.parseInt(quantityField.getText());
 						//Form to create new supplier
@@ -338,7 +338,7 @@ public class newProduct {
 				}else {
 					try {
 						//Check if price and quantity can be numeral (uses REGEX Pattern to remove pound symbol and comma from double)
-						double testPrice = Double.parseDouble(priceField.getText().replaceAll("[,{2}|£]", ""));
+						double testPrice = Double.parseDouble(priceField.getText().replaceAll("[,|£]", ""));
 						if(testPrice > 100000) {
 							//Display a more appropriate message than "Come on... seriously, in this economy!? You silly goose."
 							warningLbl.setText("Price cannot be over £100,000.");
