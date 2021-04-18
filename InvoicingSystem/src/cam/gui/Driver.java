@@ -101,7 +101,7 @@ public class Driver {
 					}else {
 						//Login was valid, dispose frame and create dash board. 
 						frame.dispose();
-						dashboard dashboard = new dashboard();
+						Dashboard dashboard = new Dashboard();
 						dashboard.createDashboard();
 					}
 					//Catch exception and display error message

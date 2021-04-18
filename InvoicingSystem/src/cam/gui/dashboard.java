@@ -14,7 +14,6 @@ import java.awt.print.PrinterJob;
 import java.sql.Date;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -42,7 +41,7 @@ import javax.swing.UIManager;
 //Author: Cameron Morrison 569530
 //Second year graded unit project. 
 
-public class dashboard extends JFrame {
+public class Dashboard extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private static JFrame mainFrame;
@@ -61,7 +60,7 @@ public class dashboard extends JFrame {
 	@SuppressWarnings("serial")
 	public void createDashboard() {
 		mainFrame = new JFrame();
-		mainFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(dashboard.class.getResource("/cam/gui/icon.png")));
+		mainFrame.setIconImage(Toolkit.getDefaultToolkit().getImage(Dashboard.class.getResource("/cam/gui/icon.png")));
 		mainFrame.setBackground(Color.WHITE);
 		mainFrame.setForeground(Color.WHITE);
 		mainFrame.setLocationRelativeTo(null);
@@ -244,7 +243,7 @@ public class dashboard extends JFrame {
 		productBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				updateTable("Suppliers");
-				newProduct productPage = new newProduct();
+				NewProduct productPage = new NewProduct();
 				productForm = productPage.addProduct();
 				productForm.setVisible(true);
 				productForm.setSize((int)size.getWidth() / 4, (int)(size.getHeight() / 2.5));

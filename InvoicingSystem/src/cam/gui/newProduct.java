@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 //Author: Cameron Morrison 569530
 //Second year graded unit project. 
  
-public class newProduct {
+public class NewProduct {
 	private JFrame frmNewProduct;
 	private JTextField nameField;
 	private JTextField descField;
@@ -45,7 +45,7 @@ public class newProduct {
 		frmNewProduct.getContentPane().setBackground(new Color(255, 255, 255));
 		frmNewProduct.getContentPane().setFont(new Font("Arial", Font.PLAIN, 12));
 		frmNewProduct.setFont(new Font("Arial", Font.PLAIN, 12));
-		frmNewProduct.setIconImage(Toolkit.getDefaultToolkit().getImage(newProduct.class.getResource("/cam/gui/icon.png")));
+		frmNewProduct.setIconImage(Toolkit.getDefaultToolkit().getImage(NewProduct.class.getResource("/cam/gui/icon.png")));
 		frmNewProduct.setTitle("New product");
 		frmNewProduct.setResizable(false);
 		
@@ -260,7 +260,7 @@ public class newProduct {
 								 data.addProduct(-1, productName, desc, price, quantity);
 								 frmNewProduct.dispose();
 								 JOptionPane.showMessageDialog(null, "Successfully added new product and supplier.");
-								 dashboard.updateTable("Suppliers");  
+								 Dashboard.updateTable("Suppliers");  
 							 }else {
 								 supplierWarningLbl.setText("Error please restart program.");
 							}

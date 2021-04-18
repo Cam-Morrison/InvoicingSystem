@@ -10,6 +10,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.regex.Pattern;
@@ -308,7 +309,6 @@ public class DataManager {
 	
 	//Stores newly entered information to database
 	private boolean storeDatabase(int option, int ID) {
-		String driver = "com.mysql.cj.jdbc.Driver";
 		String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
 		String user = "root";
 		String password = "root";
@@ -390,8 +390,6 @@ public class DataManager {
 
 	//Loads any previous information from database
 	private boolean loadDatabase(int option) throws SQLException {
-		//Database connection information
-		String driver = "com.mysql.cj.jdbc.Driver";
 		String url = "jdbc:mysql://localhost:3306/invoicingsystem?&serverTimezone=UTC";
 		String user = "root";
 		String password = "root";
@@ -624,8 +622,11 @@ public class DataManager {
 				} 
 			}
 		}
+		DecimalFormat df = new DecimalFormat("#.##");
+		total = Double.parseDouble(df.format(total));
 		return total;
 	}
+	
 	//Returns the total VAT
 	public double totalVAT(Date date) {
 		double vat = 0;
@@ -638,6 +639,8 @@ public class DataManager {
 				} 
 			}
 		}
+		DecimalFormat df = new DecimalFormat("#.##");
+		vat = Double.parseDouble(df.format(vat));
 		return vat;
 	}
 	//Returns the total number of products sold

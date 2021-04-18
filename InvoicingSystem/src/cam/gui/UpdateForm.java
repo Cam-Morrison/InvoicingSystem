@@ -50,7 +50,7 @@ public class UpdateForm {
             public void windowClosing(WindowEvent e){
             	//Close frame and update products table
             	frmUpdateProduct.dispose();
-            	dashboard.updateTable("Products");    	
+            	Dashboard.updateTable("Products");    	
             }
         });
 		

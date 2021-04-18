@@ -331,7 +331,7 @@ public class NewOrder {
 					int customerId = data.addCustomer(forename, surname, email, street, city, postcode, country);
 					if(data.newOrder(customerId, productIds, quantities, discounts, shippingMethod)) {
 						JOptionPane.showMessageDialog(null, "Your order has been placed.");
-						dashboard.updateTable("Transactions");
+						Dashboard.updateTable("Transactions");
 					}else {
 						JOptionPane.showMessageDialog(null, "Something went wrong, please restart the program.");
 					}
