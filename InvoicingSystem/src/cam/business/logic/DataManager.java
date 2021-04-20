@@ -75,8 +75,6 @@ public class DataManager {
 					currentStaffMember  = staffID;
 				    return true;
 				}
-				//hash 40bd001563085fc35165329ea1ff5c5ecbdbbeef, pass 123, staff id 1
-				//hash 5f6955d227a320c7f1f6c7da2a6d96a851a8118f, pass 321, staff id 2
 			}
 		}
 		return false;

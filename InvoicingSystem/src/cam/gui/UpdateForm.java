@@ -166,7 +166,7 @@ public class UpdateForm {
 							if(!priceField.getText().isBlank()) {
 								price =  Double.parseDouble(priceField.getText().replaceAll("[,|£]", ""));
 								if(price < 0.01) {
-									warningLbl.setText("Price cannot be negative.");
+									warningLbl.setText("Price cannot be negative."); 
 									priceField.setText("Cannot be negative.");
 								}
 							}
@@ -185,7 +185,7 @@ public class UpdateForm {
 						}
 					}
 				}catch(Exception err) {
-					warningLbl.setText("Incorrect format, please enter an ID.");
+					warningLbl.setText("Incorrect format, please check input type.");
 				}
 			}
 		});

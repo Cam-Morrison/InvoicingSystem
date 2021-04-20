@@ -13,7 +13,7 @@ class Clients {
 	private String zipCode;
 	private String country;
 	
-	Clients(String firstName, String lastName, int customerId, String email, String streetAddress, String city, String zipCode, String country){
+	protected Clients(String firstName, String lastName, int customerId, String email, String streetAddress, String city, String zipCode, String country){
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.customerId = customerId;

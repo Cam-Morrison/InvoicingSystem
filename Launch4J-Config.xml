@@ -3,7 +3,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
   <jar>H:\Java Applications\InvoicingSystem\InvoicingSystem.jar</jar>
-  <outfile>C:\Users\Cam-M\Desktop\InvoicingSystem.exe</outfile>
+  <outfile>C:\Users\Cam-M\Desktop\Invoicing System.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>C:\Users\Cam-M\Downloads\icon.ico</icon>
+  <icon>H:\Java Applications\InvoicingSystem\icon.ico</icon>
   <singleInstance>
     <mutexName>Invoice</mutexName>
     <windowTitle></windowTitle>

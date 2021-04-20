@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 //Author: Cameron Morrison 569530
 //Second year graded unit project. 
  
-public class NewProduct {
+public class newProduct {
 	private JFrame frmNewProduct;
 	private JTextField nameField;
 	private JTextField descField;
@@ -45,7 +45,7 @@ public class NewProduct {
 		frmNewProduct.getContentPane().setBackground(new Color(255, 255, 255));
 		frmNewProduct.getContentPane().setFont(new Font("Arial", Font.PLAIN, 12));
 		frmNewProduct.setFont(new Font("Arial", Font.PLAIN, 12));
-		frmNewProduct.setIconImage(Toolkit.getDefaultToolkit().getImage(NewProduct.class.getResource("/cam/gui/icon.png")));
+		frmNewProduct.setIconImage(Toolkit.getDefaultToolkit().getImage(newProduct.class.getResource("/cam/gui/icon.png")));
 		frmNewProduct.setTitle("New product");
 		frmNewProduct.setResizable(false);
 		
@@ -203,6 +203,7 @@ public class NewProduct {
 	//New supplier form
 	private JPanel supplierForm() {
 		JPanel panel = new JPanel();
+		panel.setBackground(new Color(255, 255, 255));
 	
 		JLabel supplierWarningLbl = new JLabel("");
 		supplierWarningLbl.setForeground(Color.RED);

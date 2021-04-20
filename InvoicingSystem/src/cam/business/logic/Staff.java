@@ -3,7 +3,7 @@ package cam.business.logic;
 //Author: Cameron Morrison 569530
 //Second year graded unit project. 
 
-public class Staff {
+class Staff {
 	private int staffID;
 	private String firstName;
 	private String lastName;
@@ -11,7 +11,7 @@ public class Staff {
 	private String job;
 	private String passwordHash;
 	
-	Staff(int staffID, String firstName, String lastName, String phoneNumber, String job, String passwordHash){
+	protected Staff(int staffID, String firstName, String lastName, String phoneNumber, String job, String passwordHash){
 		this.staffID = staffID;
 		this.firstName = firstName;
 		this.lastName = lastName;

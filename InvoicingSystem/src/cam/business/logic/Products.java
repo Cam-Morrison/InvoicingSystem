@@ -12,7 +12,7 @@ class Products {
 	private int avaliable;
 	private String description;
 	
-	Products(int productId, String name, double price, int stockQuantity, int supplierId, int avaliable, String description){
+	protected Products(int productId, String name, double price, int stockQuantity, int supplierId, int avaliable, String description){
 		this.productId = productId;
 		this.name = name;
 		this.price = price;
@@ -74,7 +74,7 @@ class Products {
 	/**
 	 * @param delist or relist product
 	 */
-	public void swapAvaliable() {
+	protected void swapAvaliable() {
 		if(this.avaliable == 1) {
 			this.avaliable = 0;
 		} else {

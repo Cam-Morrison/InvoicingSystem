@@ -243,7 +243,7 @@ public class Dashboard extends JFrame {
 		productBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				updateTable("Suppliers");
-				NewProduct productPage = new NewProduct();
+				newProduct productPage = new newProduct();
 				productForm = productPage.addProduct();
 				productForm.setVisible(true);
 				productForm.setSize((int)size.getWidth() / 4, (int)(size.getHeight() / 2.5));
